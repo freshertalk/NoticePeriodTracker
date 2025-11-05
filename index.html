@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Notice Period Tracker — Inclusive (Day 1 = Resignation Date)</title>
+    <meta
+      name="description"
+      content="Inclusive notice period tracker with calendar input, 30/60/90 days, a11y, and auto theme."
+    />
+    <meta name="color-scheme" content="light dark" />
+    <style>
+      /* ---------- Design System: Apple × Material hybrid ---------- */
+      :root {
+        /* Auto theme via prefers-color-scheme */
+        color-scheme: light dark;
+
+        --bg: #0b0c10;
+        --surface: #111319;
+        --elev: #151822;
+        --text: #e6e6e6;
+        --muted: #aab0b7;
+        --border: rgba(255, 255, 255, 0.12);
+        --ring: rgba(78, 161, 255, 0.35);
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+        --accentA: #4ea1ff; /* Material-ish blue */
+        --accentB: #66d9a3; /* Apple-ish mint */
+        --ok: #53e69d;
+        --warn: #ffb020;
+        --danger: #ff6b6b;
+
+        --radius-xl: 18px;
+        --radius-l: 12px;
+        --gap: 16px;
+        --font: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue",
+          Arial, "Noto Sans", "Liberation Sans", sans-serif;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono",
+          monospace;
+        --h1: clamp(22px, 2.2vw + 12px, 30px);
+        --h2: clamp(16px, 1.2vw + 10px, 20px);
+        --progress-h: 14px;
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #f6f7fb;
+          --surface: #ffffff;
+          --elev: #fbfbfe;
+          --text: #121417;
+          --muted: #5f6b78;
+          --border: rgba(18, 20, 23, 0.1);
+          --shadow: 0 12px 28px rgba(3, 10, 26, 0.08);
+          --ring: rgba(18, 20, 23, 0.12);
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family: var(--font);
+        background: radial-gradient(
+            1200px 800px at 10% -10%,
+            rgba(78, 161, 255, 0.12),
+            transparent 60%
+          ),
+          radial-gradient(
+            900px 600px at 120% 20%,
+            rgba(102, 217, 163, 0.1),
+            transparent 60%
+          ),
+          var(--bg);
+        color: var(--text);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        line-height: 1.35;
+      }
+      .wrap {
+        max-width: 860px;
+        margin: clamp(16px, 5vw, 48px) auto;
+        padding: clamp(12px, 3vw, 24px);
+      }
+      .card {
+        background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.02),
+            transparent
+          ),
+          var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow);
+        padding: clamp(16px, 3.2vw, 28px);
+      }
+      h1 {
+        margin: 0 0 6px 0;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+        font-size: var(--h1);
+      }
+      p.lead {
+        margin: 0 0 18px 0;
+        color: var(--muted);
+      }
+      .grid {
+        display: grid;
+        gap: var(--gap);
+        grid-template-columns: 1fr;
+      }
+      @media (min-width: 720px) {
+        .grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      /* Controls (Apple subtle + Material spacing) */
+      .controls {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--gap);
+        background: var(--elev);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-l);
+        padding: 14px;
+        margin-bottom: 14px;
+      }
+      @media (min-width: 600px) {
+        .controls {
+          grid-template-columns: 1.3fr 0.7fr auto;
+          align-items: end;
+        }
+      }
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+      label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      input[type="date"],
+      select,
+      button {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        font-size: 14px;
+      }
+      input[type="date"]:focus,
+      select:focus,
+      button:focus-visible {
+        outline: 3px solid var(--ring);
+        outline-offset: 2px;
+      }
+      button.primary {
+        background: linear-gradient(90deg, var(--accentA), var(--accentB));
+        border: none;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button.ghost {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text);
+        cursor: pointer;
+      }
+
+      .kpis {
+        display: grid;
+        gap: var(--gap);
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+      }
+      @media (max-width: 720px) {
+        .kpis {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      .kpi {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          transparent
+        );
+      }
+      .kpi .label {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .kpi .value {
+        font-weight: 700;
+        font-size: 20px;
+      }
+      .kpi .meta {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .progress {
+        margin-top: 10px;
+        height: var(--progress-h);
+        background: rgba(127, 127, 127, 0.18);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        overflow: clip;
+      }
+      .bar {
+        height: 100%;
+        width: 0%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--accentA), var(--accentB));
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+        transform-origin: left center;
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        .bar {
+          transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--gap);
+        margin-top: 14px;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .ok {
+        color: var(--ok);
+        font-weight: 600;
+      }
+      .warn {
+        color: var(--warn);
+        font-weight: 600;
+      }
+      .bad {
+        color: var(--danger);
+        font-weight: 600;
+      }
+
+      .foot {
+        margin-top: 18px;
+        color: var(--muted);
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .pill {
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(127, 127, 127, 0.1);
+        font-size: 12px;
+      }
+      .mono {
+        font-family: var(--mono);
+      }
+
+      .error {
+        margin-top: 8px;
+        color: var(--danger);
+        font-size: 13px;
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <section class="card" aria-labelledby="title">
+        <h1 id="title">Notice Period Tracker</h1>
+        <p class="lead">
+          Inclusive tracking — <strong>Day&nbsp;1 = Resignation Date</strong>.
+          Choose <strong>30/60/90</strong> days. Time zone: Asia/Kolkata.
+        </p>
+
+        <!-- Controls -->
+        <div class="controls" role="group" aria-labelledby="title">
+          <div class="field">
+            <label for="resignDate">Resignation date (calendar)</label>
+            <input
+              id="resignDate"
+              name="resignDate"
+              type="date"
+              inputmode="numeric"
+              required
+              aria-describedby="dateHelp"
+            />
+            <div id="dateHelp" class="muted" aria-live="polite">
+              Back-date allowed up to 90 days before today. No future dates.
+            </div>
+            <div
+              id="dateError"
+              class="error"
+              role="alert"
+              style="display: none"
+            ></div>
+          </div>
+          <div class="field">
+            <label for="period">Notice period</label>
+            <select id="period" name="period" aria-label="Notice period (days)">
+              <option value="30">30 days</option>
+              <option value="60">60 days</option>
+              <option value="90" selected>90 days</option>
+            </select>
+          </div>
+          <div class="field">
+            <button
+              id="calcBtn"
+              type="button"
+              class="primary"
+              aria-label="Calculate notice timeline"
+            >
+              Calculate
+            </button>
+          </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="kpis" aria-live="polite">
+          <div class="kpi">
+            <div class="label">Today (IST)</div>
+            <div class="value mono" id="todayText">—</div>
+            <div class="meta mono" id="nowTime">—</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Inclusive Day #</div>
+            <div class="value mono" id="dayNumber">—</div>
+            <div class="meta">Day 1 = Resignation Date</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Days Completed</div>
+            <div class="value mono" id="done">—</div>
+            <div class="meta">of <span id="totalDaysMeta">—</span></div>
+          </div>
+          <div class="kpi">
+            <div class="label">Days Remaining</div>
+            <div class="value mono" id="left">—</div>
+            <div class="meta" id="statusFlag">—</div>
+          </div>
+        </div>
+
+        <!-- Progressbar -->
+        <div
+          class="progress"
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="90"
+          aria-valuenow="0"
+          aria-label="Notice period progress"
+        >
+          <div class="bar" id="bar"></div>
+        </div>
+
+        <div class="row">
+          <div>
+            <div class="muted">Start (Day 1)</div>
+            <div><strong id="startText" class="mono">—</strong></div>
+          </div>
+          <div>
+            <div class="muted">End (Final Day)</div>
+            <div><strong id="endText" class="mono">—</strong></div>
+          </div>
+        </div>
+
+        <div class="foot">
+          <span class="pill mono" id="percentPill">—%</span>
+          <span class="pill mono" id="weekPill">— weeks</span>
+          <span class="pill mono" id="etaPill">ETA: —</span>
+          <div class="actions">
+            <button
+              class="ghost"
+              id="copyBtn"
+              type="button"
+              title="Copy summary"
+            >
+              Copy Summary
+            </button>
+            <button
+              class="ghost"
+              id="resetBtn"
+              type="button"
+              title="Reset to defaults"
+            >
+              Reset
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      /* ---------- Core Logic (IST, Inclusive Day-1) ---------- */
+      const IST_OFFSET_MIN = 330; // +05:30
+      const DAY_MS = 24 * 60 * 60 * 1000;
+
+      // Helpers
+      const qs = (s) => document.querySelector(s);
+      const qsi = (id) => document.getElementById(id);
+
+      function nowInIST() {
+        const now = new Date();
+        const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
+        return new Date(utcMs + IST_OFFSET_MIN * 60000);
+      }
+      function dateOnlyIST(dIST) {
+        return new Date(
+          dIST.getFullYear(),
+          dIST.getMonth(),
+          dIST.getDate(),
+          0,
+          0,
+          0,
+          0
+        );
+      }
+      function formatDateHuman(d) {
+        const dd = String(d.getDate()).padStart(2, "0");
+        const mon = d.toLocaleString("en-US", { month: "short" });
+        return `${dd} ${mon} ${d.getFullYear()}`;
+      }
+      function formatISODate(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+      }
+      function parseISODateToIST(iso) {
+        const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+        if (!m) return null;
+        // Interpret as IST midnight
+        return new Date(
+          Number(m[1]),
+          Number(m[2]) - 1,
+          Number(m[3]),
+          0,
+          0,
+          0,
+          0
+        );
+      }
+
+      // Bounds: today to 90 days back (inclusive)
+      function setDateBounds() {
+        const todayIST = dateOnlyIST(nowInIST());
+        const minIST = new Date(todayIST.getTime() - 90 * DAY_MS);
+        qsi("resignDate").max = formatISODate(todayIST);
+        qsi("resignDate").min = formatISODate(minIST);
+        qsi(
+          "dateHelp"
+        ).textContent = `Back-date allowed up to ${formatDateHuman(
+          minIST
+        )} (90 days). No future dates.`;
+      }
+
+      // Inclusive arithmetic: Day 1 = start, End = start + (period-1)
+      function computeTimeline(startIST, totalDays) {
+        const endIST = new Date(startIST.getTime() + (totalDays - 1) * DAY_MS);
+
+        const nowIST = nowInIST();
+        const todayIST = dateOnlyIST(nowIST);
+
+        let completed = Math.floor((todayIST - startIST) / DAY_MS) + 1; // inclusive
+        if (todayIST < startIST) completed = 0;
+        if (todayIST > endIST) completed = totalDays;
+
+        const remaining = totalDays - completed;
+        const pct = Math.round((completed / totalDays) * 100);
+
+        // Status label
+        let status = "On track",
+          cls = "muted";
+        if (remaining <= 0) {
+          status = "Complete";
+          cls = "ok";
+        } else if (remaining <= 14) {
+          status = "Final fortnight";
+          cls = "bad";
+        } else if (remaining <= 30) {
+          status = "In the home stretch";
+          cls = "warn";
+        }
+
+        return {
+          endIST,
+          todayIST,
+          completed,
+          remaining,
+          pct,
+          status,
+          cls,
+          nowIST,
+        };
+      }
+
+      // Render
+      function render(startIST, totalDays) {
+        const k = computeTimeline(startIST, totalDays);
+        qsi("todayText").textContent = formatDateHuman(k.todayIST);
+        qsi("nowTime").textContent = `Now: ${k.nowIST.toLocaleTimeString(
+          "en-IN",
+          { hour: "2-digit", minute: "2-digit", second: "2-digit" }
+        )} IST`;
+
+        qsi("dayNumber").textContent =
+          (k.completed === 0 ? 0 : k.completed) + " / " + totalDays;
+        qsi("done").textContent = String(k.completed);
+        qsi("left").textContent = String(k.remaining);
+        qsi("statusFlag").textContent = k.status;
+        qsi("statusFlag").className = "meta " + (k.cls || "muted");
+
+        qsi("bar").style.width = `${k.pct}%`;
+        const pb = qs(".progress");
+        pb.setAttribute("aria-valuenow", String(k.completed));
+        pb.setAttribute("aria-valuemax", String(totalDays));
+        qsi("totalDaysMeta").textContent = String(totalDays);
+
+        qsi("startText").textContent = formatDateHuman(startIST);
+        qsi("endText").textContent = formatDateHuman(k.endIST);
+        qsi("percentPill").textContent = `${k.pct}%`;
+        qsi("weekPill").textContent = `${(k.completed / 7).toFixed(1)} weeks`;
+        qsi("etaPill").textContent = `ETA: ${formatDateHuman(k.endIST)}`;
+      }
+
+      // Validation & UX
+      function validateDateInput(iso) {
+        const errEl = qsi("dateError");
+        errEl.style.display = "none";
+        errEl.textContent = "";
+        const d = parseISODateToIST(iso);
+        if (!d) {
+          errEl.textContent = "Invalid date.";
+          errEl.style.display = "block";
+          return null;
+        }
+        const today = dateOnlyIST(nowInIST());
+        const min = new Date(today.getTime() - 90 * DAY_MS);
+        if (d > today) {
+          errEl.textContent = "Future dates are not allowed.";
+          errEl.style.display = "block";
+          return null;
+        }
+        if (d < min) {
+          errEl.textContent = `Date too far in the past. Minimum allowed is ${formatDateHuman(
+            min
+          )} (90 days limit).`;
+          errEl.style.display = "block";
+          return null;
+        }
+        return d;
+      }
+
+      // State persistence
+      const STORAGE_KEY = "notice-tracker:v1";
+      function saveState(iso, period) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ iso, period }));
+        } catch {}
+      }
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return null;
+          const { iso, period } = JSON.parse(raw);
+          return { iso, period };
+        } catch {
+          return null;
+        }
+      }
+      function resetState() {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch {}
+      }
+
+      // Copy summary
+      async function copySummary() {
+        const today = qsi("todayText").textContent;
+        const dayNo = qsi("dayNumber").textContent;
+        const done = qsi("done").textContent;
+        const left = qsi("left").textContent;
+        const start = qsi("startText").textContent;
+        const end = qsi("endText").textContent;
+        const total = qsi("totalDaysMeta").textContent;
+        const pct = qsi("percentPill").textContent;
+
+        const summary = [
+          "Notice Period — Inclusive Tracker",
+          `Today (IST): ${today}`,
+          `Day #: ${dayNo} — ${pct} complete`,
+          `Completed: ${done} / ${total} days`,
+          `Remaining: ${left} days`,
+          `Start (Day 1): ${start}`,
+          `End (Final Day): ${end}`,
+        ].join("\n");
+
+        try {
+          await navigator.clipboard.writeText(summary);
+          const btn = qsi("copyBtn"),
+            orig = btn.textContent;
+          btn.textContent = "Copied ✅";
+          setTimeout(() => (btn.textContent = orig), 1500);
+        } catch {
+          alert("Copy failed. Your browser may have blocked clipboard access.");
+        }
+      }
+
+      // Initialize bounds & hydrate defaults
+      setDateBounds();
+
+      // Default suggestion: if user came from your original scenario, prefill 2025-10-17
+      const preset = "2025-10-17";
+      const st = loadState();
+      if (st?.iso && st?.period) {
+        qsi("resignDate").value = st.iso;
+        qsi("period").value = String(st.period);
+      } else {
+        // Only set preset if within min/max; else set to today
+        const minISO = qsi("resignDate").min,
+          maxISO = qsi("resignDate").max;
+        const withinPreset = preset >= minISO && preset <= maxISO;
+        qsi("resignDate").value = withinPreset ? preset : maxISO;
+        qsi("period").value = "90";
+      }
+
+      // Initial render
+      (function initialRender() {
+        const iso = qsi("resignDate").value;
+        const pd = validateDateInput(iso);
+        const total = Number(qsi("period").value);
+        if (pd) render(pd, total);
+        saveState(iso, total);
+      })();
+
+      // Live clock (IST)
+      setInterval(() => {
+        const nowIST = nowInIST();
+        qsi("nowTime").textContent = `Now: ${nowIST.toLocaleTimeString(
+          "en-IN",
+          { hour: "2-digit", minute: "2-digit", second: "2-digit" }
+        )} IST`;
+        // Recompute at IST midnight
+        if (
+          nowIST.getHours() === 0 &&
+          nowIST.getMinutes() === 0 &&
+          nowIST.getSeconds() < 2
+        ) {
+          const iso = qsi("resignDate").value;
+          const pd = parseISODateToIST(iso);
+          const total = Number(qsi("period").value);
+          if (pd) render(pd, total);
+        }
+      }, 1000);
+
+      // Events
+      qsi("calcBtn").addEventListener("click", () => {
+        const iso = qsi("resignDate").value;
+        const pd = validateDateInput(iso);
+        const total = Number(qsi("period").value);
+        if (!pd) return;
+        render(pd, total);
+        saveState(iso, total);
+      });
+
+      qsi("resignDate").addEventListener("change", () => {
+        const iso = qsi("resignDate").value;
+        const pd = validateDateInput(iso);
+        const total = Number(qsi("period").value);
+        if (!pd) return;
+        render(pd, total);
+        saveState(iso, total);
+      });
+
+      qsi("period").addEventListener("change", () => {
+        const iso = qsi("resignDate").value;
+        const pd = validateDateInput(iso);
+        const total = Number(qsi("period").value);
+        if (!pd) return;
+        render(pd, total);
+        saveState(iso, total);
+      });
+
+      qsi("copyBtn").addEventListener("click", copySummary);
+
+      qsi("resetBtn").addEventListener("click", () => {
+        resetState();
+        setDateBounds();
+        const maxISO = qsi("resignDate").max;
+        qsi("resignDate").value = maxISO;
+        qsi("period").value = "90";
+        qsi("dateError").style.display = "none";
+        render(parseISODateToIST(maxISO), 90);
+      });
+    </script>
+  </body>
+</html>
