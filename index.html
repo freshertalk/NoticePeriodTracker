@@ -1,714 +1,683 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Notice Period Tracker — Inclusive (Day 1 = Resignation Date)</title>
-    <meta
-      name="description"
-      content="Inclusive notice period tracker with calendar input, 30/60/90 days, a11y, and auto theme."
-    />
-    <meta name="color-scheme" content="light dark" />
-    <style>
-      /* ---------- Design System: Apple × Material hybrid ---------- */
-      :root {
-        /* Auto theme via prefers-color-scheme */
-        color-scheme: light dark;
+<html lang="en" translate="no">
 
-        --bg: #0b0c10;
-        --surface: #111319;
-        --elev: #151822;
-        --text: #e6e6e6;
-        --muted: #aab0b7;
-        --border: rgba(255, 255, 255, 0.12);
-        --ring: rgba(78, 161, 255, 0.35);
-        --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-        --accentA: #4ea1ff; /* Material-ish blue */
-        --accentB: #66d9a3; /* Apple-ish mint */
-        --ok: #53e69d;
-        --warn: #ffb020;
-        --danger: #ff6b6b;
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Notice Period Tracker — Inclusive, Global</title>
+  <meta name="description"
+    content="Global, inclusive notice period tracker. Day 1 = resignation date. Timezone aware. Calendar export. URL share. Mobile friendly." />
+  <meta name="color-scheme" content="light dark" />
 
-        --radius-xl: 18px;
-        --radius-l: 12px;
-        --gap: 16px;
-        --font: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue",
-          Arial, "Noto Sans", "Liberation Sans", sans-serif;
-        --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono",
-          monospace;
-        --h1: clamp(22px, 2.2vw + 12px, 30px);
-        --h2: clamp(16px, 1.2vw + 10px, 20px);
-        --progress-h: 14px;
-      }
-      @media (prefers-color-scheme: light) {
-        :root {
-          --bg: #f6f7fb;
-          --surface: #ffffff;
-          --elev: #fbfbfe;
-          --text: #121417;
-          --muted: #5f6b78;
-          --border: rgba(18, 20, 23, 0.1);
-          --shadow: 0 12px 28px rgba(3, 10, 26, 0.08);
-          --ring: rgba(18, 20, 23, 0.12);
-        }
-      }
-      * {
-        box-sizing: border-box;
-      }
-      html,
-      body {
-        height: 100%;
-      }
-      body {
-        margin: 0;
-        font-family: var(--font);
-        background: radial-gradient(
-            1200px 800px at 10% -10%,
-            rgba(78, 161, 255, 0.12),
-            transparent 60%
-          ),
-          radial-gradient(
-            900px 600px at 120% 20%,
-            rgba(102, 217, 163, 0.1),
-            transparent 60%
-          ),
-          var(--bg);
-        color: var(--text);
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        line-height: 1.35;
-      }
-      .wrap {
-        max-width: 860px;
-        margin: clamp(16px, 5vw, 48px) auto;
-        padding: clamp(12px, 3vw, 24px);
-      }
-      .card {
-        background: linear-gradient(
-            180deg,
-            rgba(255, 255, 255, 0.02),
-            transparent
-          ),
-          var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-xl);
-        box-shadow: var(--shadow);
-        padding: clamp(16px, 3.2vw, 28px);
-      }
-      h1 {
-        margin: 0 0 6px 0;
-        font-weight: 700;
-        letter-spacing: 0.2px;
-        font-size: var(--h1);
-      }
-      p.lead {
-        margin: 0 0 18px 0;
-        color: var(--muted);
-      }
-      .grid {
-        display: grid;
-        gap: var(--gap);
-        grid-template-columns: 1fr;
-      }
-      @media (min-width: 720px) {
-        .grid {
-          grid-template-columns: 1fr 1fr;
-        }
-      }
+  <!-- Bootstrap 5.3.3 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
 
-      /* Controls (Apple subtle + Material spacing) */
-      .controls {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: var(--gap);
-        background: var(--elev);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-l);
-        padding: 14px;
-        margin-bottom: 14px;
-      }
-      @media (min-width: 600px) {
-        .controls {
-          grid-template-columns: 1.3fr 0.7fr auto;
-          align-items: end;
-        }
-      }
-      .field {
-        display: grid;
-        gap: 6px;
-      }
-      label {
-        font-size: 12px;
-        color: var(--muted);
-      }
-      input[type="date"],
-      select,
-      button {
-        width: 100%;
-        padding: 10px 12px;
-        border-radius: 10px;
-        border: 1px solid var(--border);
-        background: var(--surface);
-        color: var(--text);
-        font-size: 14px;
-      }
-      input[type="date"]:focus,
-      select:focus,
-      button:focus-visible {
-        outline: 3px solid var(--ring);
-        outline-offset: 2px;
-      }
-      button.primary {
-        background: linear-gradient(90deg, var(--accentA), var(--accentB));
-        border: none;
-        color: white;
-        font-weight: 600;
-        cursor: pointer;
-      }
-      button.ghost {
-        background: transparent;
-        border: 1px solid var(--border);
-        color: var(--text);
-        cursor: pointer;
-      }
+  <style>
+    :root {
+      --grad: linear-gradient(90deg, #4ea1ff, #66d9a3);
+    }
 
-      .kpis {
-        display: grid;
-        gap: var(--gap);
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-      }
-      @media (max-width: 720px) {
-        .kpis {
-          grid-template-columns: 1fr 1fr;
-        }
-      }
-      .kpi {
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 14px;
-        background: linear-gradient(
-          180deg,
-          rgba(255, 255, 255, 0.02),
-          transparent
-        );
-      }
-      .kpi .label {
-        color: var(--muted);
-        font-size: 12px;
-      }
-      .kpi .value {
-        font-weight: 700;
-        font-size: 20px;
-      }
-      .kpi .meta {
-        color: var(--muted);
-        font-size: 12px;
-      }
+    body {
+      background:
+        radial-gradient(1100px 700px at 5% -10%, rgba(78, 161, 255, .10), transparent 60%),
+        radial-gradient(900px 600px at 120% 10%, rgba(102, 217, 163, .10), transparent 60%),
+        var(--bs-body-bg);
+    }
 
-      .progress {
-        margin-top: 10px;
-        height: var(--progress-h);
-        background: rgba(127, 127, 127, 0.18);
-        border: 1px solid var(--border);
-        border-radius: 999px;
-        overflow: clip;
-      }
-      .bar {
-        height: 100%;
-        width: 0%;
-        border-radius: inherit;
-        background: linear-gradient(90deg, var(--accentA), var(--accentB));
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-        transform-origin: left center;
-      }
-      @media (prefers-reduced-motion: no-preference) {
-        .bar {
-          transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-      }
+    .card-elev {
+      border: 1px solid rgba(125, 125, 125, 0.15);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+      border-radius: 1rem;
+    }
 
-      .row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: var(--gap);
-        margin-top: 14px;
-      }
-      .muted {
-        color: var(--muted);
-      }
-      .ok {
-        color: var(--ok);
-        font-weight: 600;
-      }
-      .warn {
-        color: var(--warn);
-        font-weight: 600;
-      }
-      .bad {
-        color: var(--danger);
-        font-weight: 600;
-      }
+    .btn-grad {
+      background-image: var(--grad);
+      color: #fff;
+      border: 0;
+    }
 
-      .foot {
-        margin-top: 18px;
-        color: var(--muted);
-        font-size: 12px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-      }
-      .pill {
-        padding: 2px 8px;
-        border-radius: 999px;
-        border: 1px solid var(--border);
-        background: rgba(127, 127, 127, 0.1);
-        font-size: 12px;
-      }
-      .mono {
-        font-family: var(--mono);
-      }
+    .btn-grad:hover,
+    .btn-grad:focus {
+      color: #fff;
+      filter: brightness(0.98);
+    }
 
-      .error {
-        margin-top: 8px;
-        color: var(--danger);
-        font-size: 13px;
-      }
+    .segmented .btn {
+      border-radius: 9999px !important;
+    }
 
-      .actions {
-        display: flex;
-        gap: 10px;
-        margin-top: 8px;
-        flex-wrap: wrap;
-      }
-    </style>
-  </head>
-  <body>
-    <main class="wrap">
-      <section class="card" aria-labelledby="title">
-        <h1 id="title">Notice Period Tracker</h1>
-        <p class="lead">
-          Inclusive tracking — <strong>Day&nbsp;1 = Resignation Date</strong>.
-          Choose <strong>30/60/90</strong> days. Time zone: Asia/Kolkata.
-        </p>
+    .segmented .btn-check+.btn {
+      border: 1px solid var(--bs-border-color);
+      background: transparent;
+    }
 
-        <!-- Controls -->
-        <div class="controls" role="group" aria-labelledby="title">
-          <div class="field">
-            <label for="resignDate">Resignation date (calendar)</label>
-            <input
-              id="resignDate"
-              name="resignDate"
-              type="date"
-              inputmode="numeric"
-              required
-              aria-describedby="dateHelp"
-            />
-            <div id="dateHelp" class="muted" aria-live="polite">
-              Back-date allowed up to 90 days before today. No future dates.
+    .segmented .btn-check:checked+.btn {
+      background-image: var(--grad);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .kpi {
+      border: 1px solid var(--bs-border-color);
+      border-radius: 0.75rem;
+      padding: 0.9rem;
+      height: 100%;
+      background: var(--bs-body-bg);
+    }
+
+    .kpi .kpi-label {
+      font-size: 0.8rem;
+      color: var(--bs-secondary-color);
+      margin-bottom: 0.25rem;
+    }
+
+    .kpi .kpi-value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .kpi .kpi-meta {
+      font-size: 0.8rem;
+      color: var(--bs-secondary-color);
+    }
+
+    .pill {
+      border: 1px solid var(--bs-border-color);
+      border-radius: 9999px;
+      padding: 0.15rem 0.55rem;
+      font-size: 0.8rem;
+      color: var(--bs-secondary-color);
+      background: color-mix(in srgb, var(--bs-secondary-bg) 60%, transparent);
+    }
+
+    .field-hint {
+      min-height: 1.25rem;
+    }
+
+    .title-gradient {
+      background-image: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    /* Make action column sticky on desktop for nicer UX */
+    @media (min-width: 992px) {
+      .actions-sticky {
+        position: sticky;
+        top: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="container py-4">
+    <h1 class="text-center fw-semibold mb-1">
+      <span class="title-gradient">Notice Period Tracker</span>
+    </h1>
+    <p class="text-center text-secondary mb-0">
+      Inclusive — <strong>Day&nbsp;1 = Resignation Date</strong>. Global timezone aware. Calendar export. URL share.
+    </p>
+  </header>
+
+  <main class="container pb-5">
+    <section class="card card-elev p-3 p-md-4">
+      <!-- Controls -->
+      <div class="row g-4">
+        <!-- Left column: inputs -->
+        <div class="col-12 col-lg-8">
+          <div class="row g-4">
+            <!-- Notice period -->
+            <div class="col-12">
+              <label class="form-label mb-2">Notice period</label>
+
+              <!-- Segmented presets -->
+              <div class="segmented btn-group w-100 mb-2" role="group" aria-label="Notice period presets">
+                <input type="radio" class="btn-check" name="preset" id="preset30" autocomplete="off" value="30" />
+                <label class="btn" for="preset30">30</label>
+
+                <input type="radio" class="btn-check" name="preset" id="preset60" autocomplete="off" value="60" />
+                <label class="btn" for="preset60">60</label>
+
+                <input type="radio" class="btn-check" name="preset" id="preset90" autocomplete="off" value="90"
+                  checked />
+                <label class="btn" for="preset90">90</label>
+              </div>
+
+              <!-- Custom days -->
+              <div class="input-group">
+                <span class="input-group-text">Days</span>
+                <input id="periodDays" type="number" min="1" max="365" step="1" class="form-control" value="90"
+                  aria-label="Notice period days" />
+              </div>
             </div>
-            <div
-              id="dateError"
-              class="error"
-              role="alert"
-              style="display: none"
-            ></div>
+
+            <!-- Resignation date (visible dd-MM-yyyy + hidden native date) -->
+            <div class="col-12">
+              <label for="dateDisplay" class="form-label mb-2">Resignation date (calendar)</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                <input id="dateDisplay" type="text" inputmode="numeric" pattern="\\d{2}-\\d{2}-\\d{4}"
+                  placeholder="dd-mm-yyyy" class="form-control" aria-describedby="dateHelp" />
+                <button id="openPicker" type="button" class="btn btn-outline-secondary" title="Open date picker">
+                  Pick
+                </button>
+              </div>
+              <div id="dateHelp" class="form-text text-secondary field-hint"></div>
+              <div id="dateError" class="text-danger small" role="alert" style="display: none"></div>
+
+              <!-- Hidden native date for reliability -->
+              <input id="resignDateISO" type="date" class="d-none" />
+            </div>
+
+            <!-- Timezone -->
+            <div class="col-12">
+              <label for="tz" class="form-label mb-2">Timezone</label>
+              <select id="tz" class="form-select"></select>
+              <div id="tzNow" class="form-text text-secondary field-hint"></div>
+            </div>
           </div>
-          <div class="field">
-            <label for="period">Notice period</label>
-            <select id="period" name="period" aria-label="Notice period (days)">
-              <option value="30">30 days</option>
-              <option value="60">60 days</option>
-              <option value="90" selected>90 days</option>
-            </select>
-          </div>
-          <div class="field">
-            <button
-              id="calcBtn"
-              type="button"
-              class="primary"
-              aria-label="Calculate notice timeline"
-            >
+        </div>
+
+        <!-- Right column: actions -->
+        <div class="col-12 col-lg-4">
+          <div class="d-grid gap-2 actions-sticky">
+            <button id="calcBtn" class="btn btn-grad btn-lg fw-semibold">
               Calculate
             </button>
-          </div>
-        </div>
-
-        <!-- KPIs -->
-        <div class="kpis" aria-live="polite">
-          <div class="kpi">
-            <div class="label">Today (IST)</div>
-            <div class="value mono" id="todayText">—</div>
-            <div class="meta mono" id="nowTime">—</div>
-          </div>
-          <div class="kpi">
-            <div class="label">Inclusive Day #</div>
-            <div class="value mono" id="dayNumber">—</div>
-            <div class="meta">Day 1 = Resignation Date</div>
-          </div>
-          <div class="kpi">
-            <div class="label">Days Completed</div>
-            <div class="value mono" id="done">—</div>
-            <div class="meta">of <span id="totalDaysMeta">—</span></div>
-          </div>
-          <div class="kpi">
-            <div class="label">Days Remaining</div>
-            <div class="value mono" id="left">—</div>
-            <div class="meta" id="statusFlag">—</div>
-          </div>
-        </div>
-
-        <!-- Progressbar -->
-        <div
-          class="progress"
-          role="progressbar"
-          aria-valuemin="0"
-          aria-valuemax="90"
-          aria-valuenow="0"
-          aria-label="Notice period progress"
-        >
-          <div class="bar" id="bar"></div>
-        </div>
-
-        <div class="row">
-          <div>
-            <div class="muted">Start (Day 1)</div>
-            <div><strong id="startText" class="mono">—</strong></div>
-          </div>
-          <div>
-            <div class="muted">End (Final Day)</div>
-            <div><strong id="endText" class="mono">—</strong></div>
-          </div>
-        </div>
-
-        <div class="foot">
-          <span class="pill mono" id="percentPill">—%</span>
-          <span class="pill mono" id="weekPill">— weeks</span>
-          <span class="pill mono" id="etaPill">ETA: —</span>
-          <div class="actions">
-            <button
-              class="ghost"
-              id="copyBtn"
-              type="button"
-              title="Copy summary"
-            >
-              Copy Summary
+            <button id="copyBtn" class="btn btn-outline-secondary">
+              Copy
             </button>
-            <button
-              class="ghost"
-              id="resetBtn"
-              type="button"
-              title="Reset to defaults"
-            >
+            <button id="icsBtn" class="btn btn-outline-secondary">
+              .ics
+            </button>
+            <button id="gcalBtn" class="btn btn-outline-secondary">
+              Google Cal
+            </button>
+            <button id="shareBtn" class="btn btn-outline-secondary">
+              Share
+            </button>
+            <button id="resetBtn" class="btn btn-outline-secondary">
               Reset
             </button>
           </div>
         </div>
-      </section>
-    </main>
+      </div>
 
-    <script>
-      /* ---------- Core Logic (IST, Inclusive Day-1) ---------- */
-      const IST_OFFSET_MIN = 330; // +05:30
-      const DAY_MS = 24 * 60 * 60 * 1000;
+      <hr class="my-4" />
 
-      // Helpers
-      const qs = (s) => document.querySelector(s);
-      const qsi = (id) => document.getElementById(id);
+      <!-- KPIs -->
+      <div class="row g-3" aria-live="polite">
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="kpi">
+            <div class="kpi-label">Today</div>
+            <div class="kpi-value" id="todayText">—</div>
+            <div class="kpi-meta" id="nowTime">—</div>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="kpi">
+            <div class="kpi-label">Inclusive Day #</div>
+            <div class="kpi-value" id="dayNumber">—</div>
+            <div class="kpi-meta">Day 1 = Resignation Date</div>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="kpi">
+            <div class="kpi-label">Days Completed</div>
+            <div class="kpi-value" id="done">—</div>
+            <div class="kpi-meta">
+              of <span id="totalDaysMeta">—</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="kpi">
+            <div class="kpi-label">Days Remaining</div>
+            <div class="kpi-value" id="left">—</div>
+            <div class="kpi-meta" id="statusFlag">—</div>
+          </div>
+        </div>
+      </div>
 
-      function nowInIST() {
-        const now = new Date();
-        const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
-        return new Date(utcMs + IST_OFFSET_MIN * 60000);
+      <!-- Progress -->
+      <div class="mt-3">
+        <div class="progress" style="height: 14px" role="progressbar" aria-valuemin="0" aria-valuemax="365"
+          aria-valuenow="0">
+          <div id="bar" class="progress-bar" style="width: 0%; background-image: var(--grad)"></div>
+        </div>
+      </div>
+
+      <!-- Start/End -->
+      <div class="row g-3 mt-3">
+        <div class="col-12 col-md-6">
+          <div class="text-secondary">Start (Day 1)</div>
+          <div><strong id="startText">—</strong></div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="text-secondary">End (Final Day)</div>
+          <div><strong id="endText">—</strong></div>
+        </div>
+      </div>
+
+      <!-- Pills -->
+      <div class="d-flex flex-wrap gap-2 mt-3">
+        <span class="pill" id="percentPill">—%</span>
+        <span class="pill" id="weekPill">— weeks</span>
+        <span class="pill" id="etaPill">ETA: —</span>
+        <span class="pill" id="urlPill" title="Shareable URL">URL</span>
+      </div>
+
+      <details class="mt-3">
+        <summary>About the calculation</summary>
+        <p class="text-secondary mb-0">
+          Counting is <strong>inclusive</strong> (Day 1 = resignation date) and
+          uses date ordinals in the selected timezone to avoid DST issues.
+        </p>
+      </details>
+    </section>
+  </main>
+
+  <!-- Bootstrap JS (no jQuery needed) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+
+  <script>
+    /*************** TZ-safe ordinal math + state ***************/
+    const DAY_MS = 86400000;
+    const STORAGE_KEY = "notice-tracker:v3";
+
+    const els = {
+      // Inputs
+      dateDisplay: byId("dateDisplay"),
+      dateISO: byId("resignDateISO"),
+      openPicker: byId("openPicker"),
+      dateHelp: byId("dateHelp"),
+      dateError: byId("dateError"),
+      periodDays: byId("periodDays"),
+      tz: byId("tz"),
+      tzNow: byId("tzNow"),
+      // Buttons
+      calcBtn: byId("calcBtn"),
+      copyBtn: byId("copyBtn"),
+      icsBtn: byId("icsBtn"),
+      gcalBtn: byId("gcalBtn"),
+      shareBtn: byId("shareBtn"),
+      resetBtn: byId("resetBtn"),
+      // KPIs
+      todayText: byId("todayText"),
+      nowTime: byId("nowTime"),
+      dayNumber: byId("dayNumber"),
+      done: byId("done"),
+      left: byId("left"),
+      statusFlag: byId("statusFlag"),
+      bar: byId("bar"),
+      totalDaysMeta: byId("totalDaysMeta"),
+      startText: byId("startText"),
+      endText: byId("endText"),
+      percentPill: byId("percentPill"),
+      weekPill: byId("weekPill"),
+      etaPill: byId("etaPill"),
+      urlPill: byId("urlPill"),
+    };
+
+    // Helpers
+    function byId(id) { return document.getElementById(id); }
+    function detectTimeZone() {
+      try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; }
+      catch { return "UTC"; }
+    }
+    function getAllTimeZones() {
+      return [
+        "Pacific/Honolulu", "America/Anchorage", "America/Los_Angeles", "America/Denver", "America/Chicago", "America/New_York",
+        "America/Sao_Paulo", "Europe/London", "Europe/Paris", "Europe/Berlin", "Europe/Madrid", "Europe/Rome", "Europe/Warsaw",
+        "Africa/Cairo", "Europe/Moscow", "Asia/Dubai", "Asia/Karachi", "Asia/Kolkata", "Asia/Dhaka", "Asia/Bangkok",
+        "Asia/Hong_Kong", "Asia/Shanghai", "Asia/Singapore", "Asia/Taipei", "Asia/Tokyo", "Asia/Seoul",
+        "Australia/Perth", "Australia/Adelaide", "Australia/Sydney", "Pacific/Auckland"
+      ];
+    }
+    function fmtDate(utcDate, timeZone) {
+      return new Intl.DateTimeFormat(undefined, { timeZone, day: "2-digit", month: "short", year: "numeric" }).format(utcDate);
+    }
+    function fmtTime(now, timeZone) {
+      return new Intl.DateTimeFormat(undefined, { timeZone, hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).format(now);
+    }
+    function partsNow(timeZone) {
+      const parts = new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).formatToParts(new Date());
+      const m = Object.fromEntries(parts.map(p => [p.type, p.value]));
+      return { y: +m.year, m: +m.month, d: +m.day, hh: +m.hour, mm: +m.minute, ss: +m.second };
+    }
+    function todayOrdinal(timeZone) {
+      const { y, m, d } = partsNow(timeZone);
+      return Math.floor(Date.UTC(y, m - 1, d) / DAY_MS);
+    }
+    function ymdToOrdinal(y, m, d) { return Math.floor(Date.UTC(y, m - 1, d) / DAY_MS); }
+    function ordinalToUTCDate(ord) { return new Date(ord * DAY_MS); }
+    function isoToYmd(iso) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ""); if (!m) return null; return { y: +m[1], m: +m[2], d: +m[3] }; }
+    function ymdToIso({ y, m, d }) { return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`; }
+    function isoFromUTC(d, tz) {
+      const parts = new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(d);
+      const m = Object.fromEntries(parts.map(p => [p.type, p.value]));
+      return { y: +m.year, m: +m.month, d: +m.day };
+    }
+
+    // dd-MM-yyyy UI helpers
+    function ddmmyyyyToIso(v) {
+      const m = /^(\d{2})-(\d{2})-(\d{4})$/.exec(v.trim());
+      if (!m) return null;
+      return `${m[3]}-${m[2]}-${m[1]}`;
+    }
+    function isoToDdmmyyyy(iso) {
+      const ymd = isoToYmd(iso); if (!ymd) return "";
+      return `${String(ymd.d).padStart(2, "0")}-${String(ymd.m).padStart(2, "0")}-${ymd.y}`;
+    }
+    function maskDateInput(el) {
+      el.addEventListener("input", () => {
+        // keep only digits, insert dashes at 2,5
+        let v = el.value.replace(/\D/g, "").slice(0, 8);
+        if (v.length >= 5) v = v.replace(/^(\d{2})(\d{2})(\d{0,4}).*$/, "$1-$2-$3");
+        else if (v.length >= 3) v = v.replace(/^(\d{2})(\d{0,2}).*$/, "$1-$2");
+        el.value = v;
+      });
+    }
+
+    // Bounds + validation
+    function setDateBounds(tz) {
+      const tOrd = todayOrdinal(tz);
+      const minOrd = tOrd - 90;
+      els.dateHelp.textContent = `Back-date allowed up to ${fmtDate(ordinalToUTCDate(minOrd), tz)} (90 days). No future dates.`;
+      els.dateISO.max = ymdToIso(isoFromUTC(ordinalToUTCDate(tOrd), tz));
+      els.dateISO.min = ymdToIso(isoFromUTC(ordinalToUTCDate(minOrd), tz));
+    }
+    function showError(msg) { els.dateError.textContent = msg; els.dateError.style.display = "block"; }
+    function hideError() { els.dateError.style.display = "none"; }
+
+    function validate(iso, days, tz) {
+      hideError();
+      const ymd = isoToYmd(iso);
+      if (!ymd) return showError("Invalid date."), null;
+      if (!Number.isFinite(days) || days < 1 || days > 365) return showError("Days must be 1–365."), null;
+
+      const sOrd = ymdToOrdinal(ymd.y, ymd.m, ymd.d);
+      const tOrd = todayOrdinal(tz);
+      const minOrd = tOrd - 90;
+
+      if (sOrd > tOrd) return showError("Future dates are not allowed."), null;
+      if (sOrd < minOrd) return showError(`Date too far in the past. Minimum is ${fmtDate(ordinalToUTCDate(minOrd), tz)}.`), null;
+      return { sOrd, ymd };
+    }
+
+    function compute(sOrd, total, tz) {
+      const eOrd = sOrd + (total - 1);
+      const tOrd = todayOrdinal(tz);
+
+      let done = (tOrd - sOrd) + 1;
+      if (tOrd < sOrd) done = 0;
+      if (tOrd > eOrd) done = total;
+
+      const left = Math.max(0, total - done);
+      const pct = Math.round((done / total) * 100);
+
+      let status = "On track", cls = "text-secondary";
+      if (left <= 0) { status = "✅ Complete"; cls = "text-success"; }
+      else if (left <= 14) { status = "⚠️ Final fortnight"; cls = "text-danger"; }
+      else if (left <= 30) { status = "⏳ Home stretch"; cls = "text-warning"; }
+
+      return { eOrd, done, left, pct, status, cls, tOrd };
+    }
+
+    function writeQuery({ start, days, tz }) {
+      const u = new URL(location.href);
+      u.searchParams.set("start", start);
+      u.searchParams.set("days", String(days));
+      u.searchParams.set("tz", tz);
+      history.replaceState(null, "", u);
+      els.urlPill.title = u.toString();
+    }
+
+    function saveState(state) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { } }
+    function loadState() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch { return null; } }
+
+    function render({ iso, days, tz }) {
+      const v = validate(iso, days, tz); if (!v) return;
+
+      const { eOrd, done, left, pct, status, cls, tOrd } = compute(v.sOrd, days, tz);
+      const startUTC = ordinalToUTCDate(v.sOrd);
+      const endUTC = ordinalToUTCDate(eOrd);
+      const todayUTC = ordinalToUTCDate(tOrd);
+
+      els.todayText.textContent = fmtDate(todayUTC, tz);
+      els.nowTime.textContent = `Now: ${fmtTime(new Date(), tz)} ${tz}`;
+      els.dayNumber.textContent = `${done} / ${days}`;
+      els.done.textContent = done;
+      els.left.textContent = left;
+      els.statusFlag.textContent = status;
+      els.statusFlag.className = `kpi-meta ${cls}`;
+
+      els.bar.style.width = `${pct}%`;
+      els.bar.parentElement.setAttribute("aria-valuenow", String(done));
+      els.bar.parentElement.setAttribute("aria-valuemax", String(days));
+      els.totalDaysMeta.textContent = String(days);
+
+      els.startText.textContent = fmtDate(startUTC, tz);
+      els.endText.textContent = fmtDate(endUTC, tz);
+      els.percentPill.textContent = `${pct}%`;
+      els.weekPill.textContent = `${(done / 7).toFixed(1)} weeks`;
+      els.etaPill.textContent = `ETA: ${fmtDate(endUTC, tz)}`;
+
+      writeQuery({ start: iso, days, tz });
+      saveState({ iso, days, tz });
+    }
+
+    // Calendar exports
+    function escapeICS(s) { return s.replace(/([,;])/g, "\\$1"); }
+    function toICSDate(d) {
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+      const da = String(d.getUTCDate()).padStart(2, "0");
+      return `${y}${m}${da}`;
+    }
+    function toICSDateTime(d) { return d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z"); }
+    function addDays(dUTC, n) { return new Date(dUTC.getTime() + n * DAY_MS); }
+
+    function downloadICS({ title, endUTCDate }) {
+      const uid = crypto.randomUUID?.() || String(Date.now());
+      const dtstamp = toICSDateTime(new Date());
+      const dtstart = toICSDate(endUTCDate);
+      const dtend = toICSDate(addDays(endUTCDate, 1));
+      const desc = "Notice period final day (Inclusive: Day 1 = resignation date).";
+      const ics =
+        `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//NoticePeriodTracker//v3//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:${uid}
+DTSTAMP:${dtstamp}
+DTSTART;VALUE=DATE:${dtstart}
+DTEND;VALUE=DATE:${dtend}
+SUMMARY:${escapeICS(title)}
+DESCRIPTION:${escapeICS(desc)}
+END:VEVENT
+END:VCALENDAR`;
+      const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "notice-period-end.ics"; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function openGoogleCalendar(title, endUTCDate) {
+      const dates = `${toICSDate(endUTCDate)}/${toICSDate(addDays(endUTCDate, 1))}`;
+      const u = new URL("https://calendar.google.com/calendar/render");
+      u.searchParams.set("action", "TEMPLATE");
+      u.searchParams.set("text", title);
+      u.searchParams.set("dates", dates);
+      u.searchParams.set("details", "Notice period final day (inclusive).");
+      window.open(u.toString(), "_blank", "noopener");
+    }
+
+    /*************** Wiring & UX ***************/
+    function initTimeZones() {
+      const tzs = getAllTimeZones();
+      const detected = detectTimeZone();
+      for (const z of tzs) {
+        const opt = document.createElement("option");
+        opt.value = z;
+        opt.textContent = z;
+        els.tz.appendChild(opt);
       }
-      function dateOnlyIST(dIST) {
-        return new Date(
-          dIST.getFullYear(),
-          dIST.getMonth(),
-          dIST.getDate(),
-          0,
-          0,
-          0,
-          0
-        );
+      // Default: Asia/Kolkata
+      const defaultTZ = "Asia/Kolkata";
+      els.tz.value = tzs.includes(defaultTZ) ? defaultTZ : detected;
+      if (!tzs.includes(els.tz.value)) {
+        const opt = document.createElement("option");
+        opt.value = els.tz.value;
+        opt.textContent = els.tz.value;
+        els.tz.insertBefore(opt, els.tz.firstChild);
       }
-      function formatDateHuman(d) {
-        const dd = String(d.getDate()).padStart(2, "0");
-        const mon = d.toLocaleString("en-US", { month: "short" });
-        return `${dd} ${mon} ${d.getFullYear()}`;
-      }
-      function formatISODate(d) {
-        const y = d.getFullYear();
-        const m = String(d.getMonth() + 1).padStart(2, "0");
-        const day = String(d.getDate()).padStart(2, "0");
-        return `${y}-${m}-${day}`;
-      }
-      function parseISODateToIST(iso) {
-        const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
-        if (!m) return null;
-        // Interpret as IST midnight
-        return new Date(
-          Number(m[1]),
-          Number(m[2]) - 1,
-          Number(m[3]),
-          0,
-          0,
-          0,
-          0
-        );
-      }
+    }
 
-      // Bounds: today to 90 days back (inclusive)
-      function setDateBounds() {
-        const todayIST = dateOnlyIST(nowInIST());
-        const minIST = new Date(todayIST.getTime() - 90 * DAY_MS);
-        qsi("resignDate").max = formatISODate(todayIST);
-        qsi("resignDate").min = formatISODate(minIST);
-        qsi(
-          "dateHelp"
-        ).textContent = `Back-date allowed up to ${formatDateHuman(
-          minIST
-        )} (90 days). No future dates.`;
-      }
+    function syncPresetRadiosFromDays(val) {
+      const v = String(val);
+      byId("preset30").checked = v === "30";
+      byId("preset60").checked = v === "60";
+      byId("preset90").checked = v === "90";
+    }
 
-      // Inclusive arithmetic: Day 1 = start, End = start + (period-1)
-      function computeTimeline(startIST, totalDays) {
-        const endIST = new Date(startIST.getTime() + (totalDays - 1) * DAY_MS);
+    function recalc() {
+      render({
+        iso: els.dateISO.value,
+        days: Number(els.periodDays.value),
+        tz: els.tz.value,
+      });
+    }
 
-        const nowIST = nowInIST();
-        const todayIST = dateOnlyIST(nowIST);
+    // Tick clock, midnight refresh in TZ
+    function tickNow() {
+      const tz = els.tz.value;
+      const p = partsNow(tz);
+      els.tzNow.textContent = `Now: ${fmtTime(new Date(), tz)} ${tz}`;
+      if (p.hh === 0 && p.mm === 0 && p.ss < 2) recalc();
+    }
 
-        let completed = Math.floor((todayIST - startIST) / DAY_MS) + 1; // inclusive
-        if (todayIST < startIST) completed = 0;
-        if (todayIST > endIST) completed = totalDays;
+    // Event hookups
+    maskDateInput(els.dateDisplay);
 
-        const remaining = totalDays - completed;
-        const pct = Math.round((completed / totalDays) * 100);
+    // Open native date picker for better UX (where supported)
+    els.openPicker.addEventListener("click", () => {
+      try { els.dateISO.showPicker?.(); } catch { /* fallback: focus */ els.dateISO.focus(); }
+    });
 
-        // Status label
-        let status = "On track",
-          cls = "muted";
-        if (remaining <= 0) {
-          status = "Complete";
-          cls = "ok";
-        } else if (remaining <= 14) {
-          status = "Final fortnight";
-          cls = "bad";
-        } else if (remaining <= 30) {
-          status = "In the home stretch";
-          cls = "warn";
-        }
+    // When native picker changes, mirror to dd-MM-yyyy UI & recalc
+    els.dateISO.addEventListener("change", () => {
+      els.dateDisplay.value = isoToDdmmyyyy(els.dateISO.value);
+      recalc();
+    });
 
-        return {
-          endIST,
-          todayIST,
-          completed,
-          remaining,
-          pct,
-          status,
-          cls,
-          nowIST,
-        };
-      }
+    // When user types dd-MM-yyyy, convert to ISO (if valid) and recalc
+    els.dateDisplay.addEventListener("change", () => {
+      const iso = ddmmyyyyToIso(els.dateDisplay.value);
+      if (!iso) { showError("Use format dd-mm-yyyy, e.g., 17-10-2025."); return; }
+      els.dateISO.value = iso;
+      recalc();
+    });
 
-      // Render
-      function render(startIST, totalDays) {
-        const k = computeTimeline(startIST, totalDays);
-        qsi("todayText").textContent = formatDateHuman(k.todayIST);
-        qsi("nowTime").textContent = `Now: ${k.nowIST.toLocaleTimeString(
-          "en-IN",
-          { hour: "2-digit", minute: "2-digit", second: "2-digit" }
-        )} IST`;
+    // Preset radios
+    document.querySelectorAll('input[name="preset"]').forEach(r => {
+      r.addEventListener("change", () => {
+        els.periodDays.value = r.value;
+        recalc();
+      });
+    });
 
-        qsi("dayNumber").textContent =
-          (k.completed === 0 ? 0 : k.completed) + " / " + totalDays;
-        qsi("done").textContent = String(k.completed);
-        qsi("left").textContent = String(k.remaining);
-        qsi("statusFlag").textContent = k.status;
-        qsi("statusFlag").className = "meta " + (k.cls || "muted");
+    // Custom days input
+    els.periodDays.addEventListener("input", () => {
+      const v = Number(els.periodDays.value);
+      if ([30, 60, 90].includes(v)) syncPresetRadiosFromDays(v);
+      else document.querySelectorAll('input[name="preset"]').forEach(r => r.checked = false);
+    });
+    els.periodDays.addEventListener("change", recalc);
 
-        qsi("bar").style.width = `${k.pct}%`;
-        const pb = qs(".progress");
-        pb.setAttribute("aria-valuenow", String(k.completed));
-        pb.setAttribute("aria-valuemax", String(totalDays));
-        qsi("totalDaysMeta").textContent = String(totalDays);
+    // Timezone change
+    els.tz.addEventListener("change", () => { setDateBounds(els.tz.value); recalc(); });
 
-        qsi("startText").textContent = formatDateHuman(startIST);
-        qsi("endText").textContent = formatDateHuman(k.endIST);
-        qsi("percentPill").textContent = `${k.pct}%`;
-        qsi("weekPill").textContent = `${(k.completed / 7).toFixed(1)} weeks`;
-        qsi("etaPill").textContent = `ETA: ${formatDateHuman(k.endIST)}`;
-      }
+    // Calculate button triggers same recompute
+    els.calcBtn.addEventListener("click", recalc);
 
-      // Validation & UX
-      function validateDateInput(iso) {
-        const errEl = qsi("dateError");
-        errEl.style.display = "none";
-        errEl.textContent = "";
-        const d = parseISODateToIST(iso);
-        if (!d) {
-          errEl.textContent = "Invalid date.";
-          errEl.style.display = "block";
-          return null;
-        }
-        const today = dateOnlyIST(nowInIST());
-        const min = new Date(today.getTime() - 90 * DAY_MS);
-        if (d > today) {
-          errEl.textContent = "Future dates are not allowed.";
-          errEl.style.display = "block";
-          return null;
-        }
-        if (d < min) {
-          errEl.textContent = `Date too far in the past. Minimum allowed is ${formatDateHuman(
-            min
-          )} (90 days limit).`;
-          errEl.style.display = "block";
-          return null;
-        }
-        return d;
-      }
+    // Copy (summary + URL)
+    els.copyBtn.addEventListener("click", async () => {
+      const summary = [
+        "Notice Period — Inclusive Tracker",
+        `Timezone: ${els.tz.value}`,
+        `Today: ${els.todayText.textContent} (${els.nowTime.textContent.replace(/^Now:\\s*/, "")})`,
+        `Day #: ${els.dayNumber.textContent} — ${els.percentPill.textContent} complete`,
+        `Completed: ${els.done.textContent} / ${els.totalDaysMeta.textContent} days`,
+        `Remaining: ${els.left.textContent} days`,
+        `Start (Day 1): ${els.startText.textContent}`,
+        `End (Final Day): ${els.endText.textContent}`,
+        `Share: ${location.href}`,
+      ].join("\n");
+      try { await navigator.clipboard.writeText(summary); } catch { }
+    });
 
-      // State persistence
-      const STORAGE_KEY = "notice-tracker:v1";
-      function saveState(iso, period) {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify({ iso, period }));
-        } catch {}
-      }
-      function loadState() {
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) return null;
-          const { iso, period } = JSON.parse(raw);
-          return { iso, period };
-        } catch {
-          return null;
-        }
-      }
-      function resetState() {
-        try {
-          localStorage.removeItem(STORAGE_KEY);
-        } catch {}
-      }
+    // .ics
+    els.icsBtn.addEventListener("click", () => {
+      const iso = els.dateISO.value, tz = els.tz.value, days = Number(els.periodDays.value);
+      const v = validate(iso, days, tz); if (!v) return;
+      const endOrd = v.sOrd + (days - 1);
+      downloadICS({ title: "Notice Period — Final Day", endUTCDate: ordinalToUTCDate(endOrd) });
+    });
 
-      // Copy summary
-      async function copySummary() {
-        const today = qsi("todayText").textContent;
-        const dayNo = qsi("dayNumber").textContent;
-        const done = qsi("done").textContent;
-        const left = qsi("left").textContent;
-        const start = qsi("startText").textContent;
-        const end = qsi("endText").textContent;
-        const total = qsi("totalDaysMeta").textContent;
-        const pct = qsi("percentPill").textContent;
+    // Google Calendar
+    els.gcalBtn.addEventListener("click", () => {
+      const iso = els.dateISO.value, tz = els.tz.value, days = Number(els.periodDays.value);
+      const v = validate(iso, days, tz); if (!v) return;
+      const endOrd = v.sOrd + (days - 1);
+      openGoogleCalendar("Notice Period — Final Day", ordinalToUTCDate(endOrd));
+    });
 
-        const summary = [
-          "Notice Period — Inclusive Tracker",
-          `Today (IST): ${today}`,
-          `Day #: ${dayNo} — ${pct} complete`,
-          `Completed: ${done} / ${total} days`,
-          `Remaining: ${left} days`,
-          `Start (Day 1): ${start}`,
-          `End (Final Day): ${end}`,
-        ].join("\n");
+    // Share
+    els.shareBtn.addEventListener("click", async () => {
+      try { await navigator.share?.({ title: document.title, url: location.href }); } catch { }
+    });
 
-        try {
-          await navigator.clipboard.writeText(summary);
-          const btn = qsi("copyBtn"),
-            orig = btn.textContent;
-          btn.textContent = "Copied ✅";
-          setTimeout(() => (btn.textContent = orig), 1500);
-        } catch {
-          alert("Copy failed. Your browser may have blocked clipboard access.");
-        }
-      }
+    // Reset
+    els.resetBtn.addEventListener("click", () => {
+      try { localStorage.removeItem(STORAGE_KEY); } catch { }
+      // defaults again
+      els.tz.value = "Asia/Kolkata";
+      setDateBounds(els.tz.value);
+      els.periodDays.value = 90; syncPresetRadiosFromDays(90);
+      els.dateISO.value = "2025-10-17";
+      els.dateDisplay.value = "17-10-2025";
+      hideError();
+      recalc();
+    });
 
-      // Initialize bounds & hydrate defaults
-      setDateBounds();
+    // Boot — defaults required by you
+    (function boot() {
+      initTimeZones();
+      setDateBounds("Asia/Kolkata");
 
-      // Default suggestion: if user came from your original scenario, prefill 2025-10-17
-      const preset = "2025-10-17";
-      const st = loadState();
-      if (st?.iso && st?.period) {
-        qsi("resignDate").value = st.iso;
-        qsi("period").value = String(st.period);
-      } else {
-        // Only set preset if within min/max; else set to today
-        const minISO = qsi("resignDate").min,
-          maxISO = qsi("resignDate").max;
-        const withinPreset = preset >= minISO && preset <= maxISO;
-        qsi("resignDate").value = withinPreset ? preset : maxISO;
-        qsi("period").value = "90";
-      }
+      // Defaults: 90 days, Asia/Kolkata, 17-10-2025 (dd-MM-yyyy)
+      els.tz.value = "Asia/Kolkata";
+      els.periodDays.value = 90; syncPresetRadiosFromDays(90);
+      els.dateISO.value = "2025-10-17";
+      els.dateDisplay.value = "17-10-2025";
 
       // Initial render
-      (function initialRender() {
-        const iso = qsi("resignDate").value;
-        const pd = validateDateInput(iso);
-        const total = Number(qsi("period").value);
-        if (pd) render(pd, total);
-        saveState(iso, total);
-      })();
+      recalc();
+      // Live clock
+      tickNow(); setInterval(tickNow, 1000);
+    })();
+  </script>
+</body>
 
-      // Live clock (IST)
-      setInterval(() => {
-        const nowIST = nowInIST();
-        qsi("nowTime").textContent = `Now: ${nowIST.toLocaleTimeString(
-          "en-IN",
-          { hour: "2-digit", minute: "2-digit", second: "2-digit" }
-        )} IST`;
-        // Recompute at IST midnight
-        if (
-          nowIST.getHours() === 0 &&
-          nowIST.getMinutes() === 0 &&
-          nowIST.getSeconds() < 2
-        ) {
-          const iso = qsi("resignDate").value;
-          const pd = parseISODateToIST(iso);
-          const total = Number(qsi("period").value);
-          if (pd) render(pd, total);
-        }
-      }, 1000);
-
-      // Events
-      qsi("calcBtn").addEventListener("click", () => {
-        const iso = qsi("resignDate").value;
-        const pd = validateDateInput(iso);
-        const total = Number(qsi("period").value);
-        if (!pd) return;
-        render(pd, total);
-        saveState(iso, total);
-      });
-
-      qsi("resignDate").addEventListener("change", () => {
-        const iso = qsi("resignDate").value;
-        const pd = validateDateInput(iso);
-        const total = Number(qsi("period").value);
-        if (!pd) return;
-        render(pd, total);
-        saveState(iso, total);
-      });
-
-      qsi("period").addEventListener("change", () => {
-        const iso = qsi("resignDate").value;
-        const pd = validateDateInput(iso);
-        const total = Number(qsi("period").value);
-        if (!pd) return;
-        render(pd, total);
-        saveState(iso, total);
-      });
-
-      qsi("copyBtn").addEventListener("click", copySummary);
-
-      qsi("resetBtn").addEventListener("click", () => {
-        resetState();
-        setDateBounds();
-        const maxISO = qsi("resignDate").max;
-        qsi("resignDate").value = maxISO;
-        qsi("period").value = "90";
-        qsi("dateError").style.display = "none";
-        render(parseISODateToIST(maxISO), 90);
-      });
-    </script>
-  </body>
 </html>
