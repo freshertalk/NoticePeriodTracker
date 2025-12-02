@@ -1,681 +1,1385 @@
 <!DOCTYPE html>
-<html lang="en" translate="no">
+<html lang="en">
 
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Notice Period Tracker — Inclusive, Global</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description"
-    content="Global, inclusive notice period tracker. Day 1 = resignation date. Timezone aware. Calendar export. URL share. Mobile friendly." />
-  <meta name="color-scheme" content="light dark" />
+    content="Notice Period Tracker - Calculate your notice period end date with timezone support, calendar export, and URL sharing.">
+  <title>Notice Period Tracker</title>
 
-  <!-- Bootstrap 5.3.3 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Inter Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
   <!-- Bootstrap Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
   <style>
     :root {
-      --grad: linear-gradient(90deg, #4ea1ff, #66d9a3);
+      --color-primary: #2563eb;
+      --color-primary-hover: #1d4ed8;
+      --color-primary-light: #dbeafe;
+      --color-primary-subtle: #eff6ff;
+      --color-success: #059669;
+      --color-success-light: #d1fae5;
+      --color-warning: #d97706;
+      --color-warning-light: #fef3c7;
+      --color-danger: #dc2626;
+      --color-danger-light: #fee2e2;
+      --color-gray-50: #f9fafb;
+      --color-gray-100: #f3f4f6;
+      --color-gray-200: #e5e7eb;
+      --color-gray-300: #d1d5db;
+      --color-gray-400: #9ca3af;
+      --color-gray-500: #6b7280;
+      --color-gray-600: #4b5563;
+      --color-gray-700: #374151;
+      --color-gray-800: #1f2937;
+      --color-gray-900: #111827;
+      --color-white: #ffffff;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+      --radius-sm: 0.375rem;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+      --transition-fast: 150ms ease;
+      --transition-normal: 200ms ease;
+      --transition-slow: 300ms ease;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
-      background:
-        radial-gradient(1100px 700px at 5% -10%, rgba(78, 161, 255, .10), transparent 60%),
-        radial-gradient(900px 600px at 120% 10%, rgba(102, 217, 163, .10), transparent 60%),
-        var(--bs-body-bg);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, var(--color-gray-50) 0%, var(--color-primary-subtle) 100%);
+      min-height: 100vh;
+      color: var(--color-gray-800);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
-    .card-elev {
-      border: 1px solid rgba(125, 125, 125, 0.15);
-      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
-      border-radius: 1rem;
+    /* Main Container */
+    .app-container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
     }
 
-    .btn-grad {
-      background-image: var(--grad);
-      color: #fff;
-      border: 0;
+    @media (min-width: 768px) {
+      .app-container {
+        padding: 2.5rem 1.5rem 4rem;
+      }
     }
 
-    .btn-grad:hover,
-    .btn-grad:focus {
-      color: #fff;
-      filter: brightness(0.98);
+    /* Header */
+    .app-header {
+      text-align: center;
+      margin-bottom: 2rem;
     }
 
-    .segmented .btn {
-      border-radius: 9999px !important;
+    .app-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.025em;
     }
 
-    .segmented .btn-check+.btn {
-      border: 1px solid var(--bs-border-color);
+    @media (min-width: 768px) {
+      .app-title {
+        font-size: 2.25rem;
+      }
+    }
+
+    .app-subtitle {
+      font-size: 0.875rem;
+      color: var(--color-gray-500);
+      max-width: 28rem;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    /* Cards */
+    .card-section {
+      background: var(--color-white);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-md);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      border: 1px solid var(--color-gray-100);
+      transition: box-shadow var(--transition-normal);
+    }
+
+    .card-section:hover {
+      box-shadow: var(--shadow-lg);
+    }
+
+    @media (min-width: 768px) {
+      .card-section {
+        padding: 2rem;
+      }
+    }
+
+    /* Section Labels */
+    .section-label {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-gray-500);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-label i {
+      font-size: 0.875rem;
+      color: var(--color-primary);
+    }
+
+    /* Notice Period Toggle Group */
+    .period-toggle-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .period-toggle {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--color-gray-200);
+      background: var(--color-white);
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--color-gray-600);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-align: center;
+    }
+
+    .period-toggle:hover {
+      border-color: var(--color-primary-light);
+      background: var(--color-primary-subtle);
+    }
+
+    .period-toggle:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .period-toggle.active {
+      border-color: var(--color-primary);
+      background: var(--color-primary);
+      color: var(--color-white);
+    }
+
+    .period-toggle span {
+      display: block;
+      font-size: 0.6875rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
+      opacity: 0.7;
+      margin-top: 0.125rem;
+    }
+
+    /* Form Controls */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-label-custom {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--color-gray-700);
+      margin-bottom: 0.5rem;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper i {
+      position: absolute;
+      left: 0.875rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-gray-400);
+      font-size: 1rem;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .form-control-custom {
+      width: 100%;
+      padding: 0.75rem 0.875rem 0.75rem 2.5rem;
+      border: 1.5px solid var(--color-gray-200);
+      border-radius: var(--radius-md);
+      font-size: 0.9375rem;
+      font-family: inherit;
+      color: var(--color-gray-800);
+      background: var(--color-white);
+      transition: all var(--transition-fast);
+    }
+
+    .form-control-custom:hover {
+      border-color: var(--color-gray-300);
+    }
+
+    .form-control-custom:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-light);
+    }
+
+    .form-control-custom::placeholder {
+      color: var(--color-gray-400);
+    }
+
+    /* Select styling */
+    select.form-control-custom {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%236b7280' d='M4.646 5.646a.5.5 0 0 1 .708 0L8 8.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      padding-right: 2.5rem;
+      cursor: pointer;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.625rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn-custom {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.6875rem 1rem;
+      border-radius: var(--radius-md);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      border: none;
+      white-space: nowrap;
+    }
+
+    .btn-custom:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .btn-custom:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: var(--color-white);
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--color-primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: var(--color-gray-100);
+      color: var(--color-gray-700);
+      border: 1px solid var(--color-gray-200);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: var(--color-gray-200);
+    }
+
+    .btn-outline {
       background: transparent;
+      color: var(--color-gray-600);
+      border: 1.5px solid var(--color-gray-200);
     }
 
-    .segmented .btn-check:checked+.btn {
-      background-image: var(--grad);
-      color: #fff;
+    .btn-outline:hover:not(:disabled) {
+      background: var(--color-gray-50);
+      border-color: var(--color-gray-300);
+    }
+
+    .btn-danger {
+      background: var(--color-danger-light);
+      color: var(--color-danger);
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: var(--color-danger);
+      color: var(--color-white);
+    }
+
+    .btn-icon {
+      padding: 0.6875rem;
+      min-width: auto;
+    }
+
+    /* Results Section */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    @media (min-width: 576px) {
+      .results-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .result-card {
+      background: var(--color-gray-50);
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+      text-align: center;
+      border: 1px solid var(--color-gray-100);
+      transition: all var(--transition-normal);
+    }
+
+    .result-card:hover {
+      background: var(--color-white);
+      border-color: var(--color-gray-200);
+    }
+
+    .result-card.highlight {
+      background: var(--color-primary-subtle);
+      border-color: var(--color-primary-light);
+    }
+
+    .result-card.success {
+      background: var(--color-success-light);
       border-color: transparent;
     }
 
-    .kpi {
-      border: 1px solid var(--bs-border-color);
-      border-radius: 0.75rem;
-      padding: 0.9rem;
-      height: 100%;
-      background: var(--bs-body-bg);
+    .result-card.warning {
+      background: var(--color-warning-light);
+      border-color: transparent;
     }
 
-    .kpi .kpi-label {
-      font-size: 0.8rem;
-      color: var(--bs-secondary-color);
+    .result-card.span-2 {
+      grid-column: span 2;
+    }
+
+    @media (min-width: 576px) {
+      .result-card.span-2 {
+        grid-column: span 1;
+      }
+    }
+
+    .result-label {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-gray-500);
+      margin-bottom: 0.375rem;
+    }
+
+    .result-value {
+      font-size: 1.375rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+      line-height: 1.2;
+    }
+
+    .result-value.large {
+      font-size: 2rem;
+    }
+
+    .result-sub {
+      font-size: 0.75rem;
+      color: var(--color-gray-500);
+      margin-top: 0.25rem;
+    }
+
+    /* Progress Section */
+    .progress-section {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--color-gray-100);
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .progress-label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--color-gray-700);
+    }
+
+    .progress-value {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    .progress-bar-container {
+      height: 0.625rem;
+      background: var(--color-gray-200);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--color-primary) 0%, #3b82f6 100%);
+      border-radius: 9999px;
+      transition: width var(--transition-slow);
+      min-width: 0;
+    }
+
+    .progress-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--color-gray-200);
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.8125rem;
+      color: var(--color-gray-600);
+    }
+
+    .meta-item i {
+      color: var(--color-gray-400);
+      font-size: 0.875rem;
+    }
+
+    .meta-item strong {
+      font-weight: 600;
+      color: var(--color-gray-800);
+    }
+
+    /* Date Range Display */
+    .date-range {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: var(--color-gray-50);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-gray-100);
+    }
+
+    @media (max-width: 575px) {
+      .date-range {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+
+    .date-point {
+      flex: 1;
+    }
+
+    .date-point-label {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-gray-500);
       margin-bottom: 0.25rem;
     }
 
-    .kpi .kpi-value {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-weight: 700;
-      font-size: 1.1rem;
+    .date-point-value {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--color-gray-800);
     }
 
-    .kpi .kpi-meta {
-      font-size: 0.8rem;
-      color: var(--bs-secondary-color);
+    .date-connector {
+      display: flex;
+      align-items: center;
+      color: var(--color-gray-300);
     }
 
-    .pill {
-      border: 1px solid var(--bs-border-color);
-      border-radius: 9999px;
-      padding: 0.15rem 0.55rem;
-      font-size: 0.8rem;
-      color: var(--bs-secondary-color);
-      background: color-mix(in srgb, var(--bs-secondary-bg) 60%, transparent);
+    .date-connector i {
+      font-size: 1.25rem;
     }
 
-    .field-hint {
-      min-height: 1.25rem;
-    }
-
-    .title-gradient {
-      background-image: var(--grad);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    /* Make action column sticky on desktop for nicer UX */
-    @media (min-width: 992px) {
-      .actions-sticky {
-        position: sticky;
-        top: 1rem;
+    @media (max-width: 575px) {
+      .date-connector i {
+        transform: rotate(90deg);
       }
+    }
+
+    /* Info Box */
+    .info-box {
+      display: flex;
+      gap: 0.75rem;
+      padding: 1rem;
+      background: var(--color-primary-subtle);
+      border-radius: var(--radius-md);
+      border-left: 3px solid var(--color-primary);
+    }
+
+    .info-box i {
+      color: var(--color-primary);
+      font-size: 1rem;
+      flex-shrink: 0;
+      margin-top: 0.125rem;
+    }
+
+    .info-box p {
+      font-size: 0.8125rem;
+      color: var(--color-gray-700);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    /* Toast Notification */
+    .toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1050;
+      pointer-events: none;
+    }
+
+    .toast-notification {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      padding: 0.875rem 1.25rem;
+      background: var(--color-gray-900);
+      color: var(--color-white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
+      font-size: 0.875rem;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(1rem);
+      transition: all var(--transition-normal);
+      pointer-events: auto;
+    }
+
+    .toast-notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast-notification i {
+      font-size: 1rem;
+    }
+
+    .toast-notification.success {
+      background: var(--color-success);
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--color-gray-400);
+    }
+
+    .empty-state i {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+      opacity: 0.5;
+    }
+
+    .empty-state p {
+      font-size: 0.875rem;
+      margin: 0;
+    }
+
+    /* Footer */
+    .app-footer {
+      text-align: center;
+      padding-top: 1rem;
+      font-size: 0.75rem;
+      color: var(--color-gray-400);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(0.5rem);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-in {
+      animation: fadeIn var(--transition-normal) ease-out forwards;
+    }
+
+    /* Screen reader only */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Focus visible for accessibility */
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* URL Display */
+    .url-display {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 0.875rem;
+      background: var(--color-gray-50);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-gray-200);
+      margin-top: 1rem;
+    }
+
+    .url-display input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 0.8125rem;
+      font-family: monospace;
+      color: var(--color-gray-600);
+      min-width: 0;
+    }
+
+    .url-display input:focus {
+      outline: none;
+    }
+
+    .url-display button {
+      flex-shrink: 0;
+    }
+
+    /* Hide initially */
+    .results-container.hidden {
+      display: none;
     }
   </style>
 </head>
 
 <body>
-  <header class="container py-4">
-    <h1 class="text-center fw-semibold mb-1">
-      <span class="title-gradient">Notice Period Tracker</span>
-    </h1>
-    <p class="text-center text-secondary mb-0">
-      Inclusive — <strong>Day&nbsp;1 = Resignation Date</strong>. Global timezone aware. Calendar export. URL share.
-    </p>
-  </header>
+  <main class="app-container" role="main">
+    <!-- Header -->
+    <header class="app-header">
+      <h1 class="app-title">Notice Period Tracker</h1>
+      <p class="app-subtitle">Inclusive — Day 1 = Resignation Date. Global timezone aware. Calendar export. URL share.
+      </p>
+    </header>
 
-  <main class="container pb-5">
-    <section class="card card-elev p-3 p-md-4">
-      <!-- Controls -->
-      <div class="row g-4">
-        <!-- Left column: inputs -->
-        <div class="col-12 col-lg-8">
-          <div class="row g-4">
-            <!-- Notice period -->
-            <div class="col-12">
-              <label class="form-label mb-2">Notice period</label>
-
-              <!-- Segmented presets -->
-              <div class="segmented btn-group w-100 mb-2" role="group" aria-label="Notice period presets">
-                <input type="radio" class="btn-check" name="preset" id="preset30" autocomplete="off" value="30" />
-                <label class="btn" for="preset30">30</label>
-
-                <input type="radio" class="btn-check" name="preset" id="preset60" autocomplete="off" value="60" />
-                <label class="btn" for="preset60">60</label>
-
-                <input type="radio" class="btn-check" name="preset" id="preset90" autocomplete="off" value="90"
-                  checked />
-                <label class="btn" for="preset90">90</label>
-              </div>
-
-              <!-- Custom days -->
-              <div class="input-group">
-                <span class="input-group-text">Days</span>
-                <input id="periodDays" type="number" min="1" max="365" step="1" class="form-control" value="90"
-                  aria-label="Notice period days" />
-              </div>
-            </div>
-
-            <!-- Resignation date (visible dd-MM-yyyy + hidden native date) -->
-            <div class="col-12">
-              <label for="dateDisplay" class="form-label mb-2">Resignation date (calendar)</label>
-              <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
-                <input id="dateDisplay" type="text" inputmode="numeric" pattern="\\d{2}-\\d{2}-\\d{4}"
-                  placeholder="dd-mm-yyyy" class="form-control" aria-describedby="dateHelp" />
-                <button id="openPicker" type="button" class="btn btn-outline-secondary" title="Open date picker">
-                  Pick
-                </button>
-              </div>
-              <div id="dateHelp" class="form-text text-secondary field-hint"></div>
-              <div id="dateError" class="text-danger small" role="alert" style="display: none"></div>
-
-              <!-- Hidden native date for reliability -->
-              <input id="resignDateISO" type="date" class="d-none" />
-            </div>
-
-            <!-- Timezone -->
-            <div class="col-12">
-              <label for="tz" class="form-label mb-2">Timezone</label>
-              <select id="tz" class="form-select"></select>
-              <div id="tzNow" class="form-text text-secondary field-hint"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right column: actions -->
-        <div class="col-12 col-lg-4">
-          <div class="d-grid gap-2 actions-sticky">
-            <button id="calcBtn" class="btn btn-grad btn-lg fw-semibold">
-              Calculate
-            </button>
-            <button id="copyBtn" class="btn btn-outline-secondary">
-              Copy
-            </button>
-            <button id="icsBtn" class="btn btn-outline-secondary">
-              .ics
-            </button>
-            <button id="gcalBtn" class="btn btn-outline-secondary">
-              Google Cal
-            </button>
-            <button id="shareBtn" class="btn btn-outline-secondary">
-              Share
-            </button>
-            <button id="resetBtn" class="btn btn-outline-secondary">
-              Reset
-            </button>
-          </div>
-        </div>
+    <!-- Input Section -->
+    <section class="card-section" aria-labelledby="input-section-label">
+      <div class="section-label" id="input-section-label">
+        <i class="bi bi-calendar-event" aria-hidden="true"></i>
+        Notice Period
       </div>
 
-      <hr class="my-4" />
-
-      <!-- KPIs -->
-      <div class="row g-3" aria-live="polite">
-        <div class="col-12 col-sm-6 col-xl-3">
-          <div class="kpi">
-            <div class="kpi-label">Today</div>
-            <div class="kpi-value" id="todayText">—</div>
-            <div class="kpi-meta" id="nowTime">—</div>
-          </div>
-        </div>
-        <div class="col-12 col-sm-6 col-xl-3">
-          <div class="kpi">
-            <div class="kpi-label">Inclusive Day #</div>
-            <div class="kpi-value" id="dayNumber">—</div>
-            <div class="kpi-meta">Day 1 = Resignation Date</div>
-          </div>
-        </div>
-        <div class="col-12 col-sm-6 col-xl-3">
-          <div class="kpi">
-            <div class="kpi-label">Days Completed</div>
-            <div class="kpi-value" id="done">—</div>
-            <div class="kpi-meta">
-              of <span id="totalDaysMeta">—</span>
-            </div>
-          </div>
-        </div>
-        <div class="col-12 col-sm-6 col-xl-3">
-          <div class="kpi">
-            <div class="kpi-label">Days Remaining</div>
-            <div class="kpi-value" id="left">—</div>
-            <div class="kpi-meta" id="statusFlag">—</div>
-          </div>
-        </div>
+      <!-- Period Toggle -->
+      <div class="period-toggle-group" role="group" aria-label="Select notice period duration">
+        <button type="button" class="period-toggle active" data-days="30" aria-pressed="true">
+          30
+          <span>Days</span>
+        </button>
+        <button type="button" class="period-toggle" data-days="60" aria-pressed="false">
+          60
+          <span>Days</span>
+        </button>
+        <button type="button" class="period-toggle" data-days="90" aria-pressed="false">
+          90
+          <span>Days</span>
+        </button>
       </div>
 
-      <!-- Progress -->
-      <div class="mt-3">
-        <div class="progress" style="height: 14px" role="progressbar" aria-valuemin="0" aria-valuemax="365"
-          aria-valuenow="0">
-          <div id="bar" class="progress-bar" style="width: 0%; background-image: var(--grad)"></div>
+      <!-- Date Input -->
+      <div class="form-group">
+        <label for="resignation-date" class="form-label-custom">Resignation Date</label>
+        <div class="input-wrapper">
+          <i class="bi bi-calendar3" aria-hidden="true"></i>
+          <input type="date" id="resignation-date" class="form-control-custom" aria-describedby="date-help" required>
         </div>
+        <span id="date-help" class="sr-only">Select the date you submitted your resignation</span>
       </div>
 
-      <!-- Start/End -->
-      <div class="row g-3 mt-3">
-        <div class="col-12 col-md-6">
-          <div class="text-secondary">Start (Day 1)</div>
-          <div><strong id="startText">—</strong></div>
+      <!-- Timezone Select -->
+      <div class="form-group">
+        <label for="timezone-select" class="form-label-custom">Timezone</label>
+        <div class="input-wrapper">
+          <i class="bi bi-globe" aria-hidden="true"></i>
+          <select id="timezone-select" class="form-control-custom" aria-describedby="tz-help">
+            <!-- Populated by JavaScript -->
+          </select>
         </div>
-        <div class="col-12 col-md-6">
-          <div class="text-secondary">End (Final Day)</div>
-          <div><strong id="endText">—</strong></div>
-        </div>
+        <span id="tz-help" class="sr-only">Select your local timezone for accurate calculations</span>
       </div>
 
-      <!-- Pills -->
-      <div class="d-flex flex-wrap gap-2 mt-3">
-        <span class="pill" id="percentPill">—%</span>
-        <span class="pill" id="weekPill">— weeks</span>
-        <span class="pill" id="etaPill">ETA: —</span>
-        <span class="pill" id="urlPill" title="Shareable URL">URL</span>
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button type="button" id="btn-calculate" class="btn-custom btn-primary"
+          aria-label="Calculate notice period end date">
+          <i class="bi bi-calculator" aria-hidden="true"></i>
+          Calculate
+        </button>
+        <button type="button" id="btn-ics" class="btn-custom btn-secondary" disabled
+          aria-label="Download calendar file">
+          <i class="bi bi-download" aria-hidden="true"></i>
+          Copy .ics
+        </button>
+        <button type="button" id="btn-gcal" class="btn-custom btn-secondary" disabled
+          aria-label="Add to Google Calendar">
+          <i class="bi bi-google" aria-hidden="true"></i>
+          Google Cal
+        </button>
+        <button type="button" id="btn-share" class="btn-custom btn-outline" disabled aria-label="Share calculation URL">
+          <i class="bi bi-share" aria-hidden="true"></i>
+          Share
+        </button>
+        <button type="button" id="btn-reset" class="btn-custom btn-danger btn-icon" aria-label="Reset all fields">
+          <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+        </button>
       </div>
-
-      <details class="mt-3">
-        <summary>About the calculation</summary>
-        <p class="text-secondary mb-0">
-          Counting is <strong>inclusive</strong> (Day 1 = resignation date) and
-          uses date ordinals in the selected timezone to avoid DST issues.
-        </p>
-      </details>
     </section>
+
+    <!-- Results Section -->
+    <section class="card-section results-container hidden" aria-labelledby="results-section-label" aria-live="polite">
+      <div class="section-label" id="results-section-label">
+        <i class="bi bi-graph-up" aria-hidden="true"></i>
+        Status Overview
+      </div>
+
+      <div class="results-grid">
+        <!-- Today -->
+        <div class="result-card">
+          <div class="result-label">Today</div>
+          <div class="result-value" id="result-today">—</div>
+          <div class="result-sub" id="result-today-date">—</div>
+        </div>
+
+        <!-- Inclusive Day -->
+        <div class="result-card highlight">
+          <div class="result-label">Inclusive Day #</div>
+          <div class="result-value large" id="result-day-number">—</div>
+          <div class="result-sub">Day 1 = Resignation Date</div>
+        </div>
+
+        <!-- Days Completed -->
+        <div class="result-card">
+          <div class="result-label">Days Completed</div>
+          <div class="result-value" id="result-completed">—</div>
+          <div class="result-sub" id="result-completed-of">of —</div>
+        </div>
+
+        <!-- Days Remaining -->
+        <div class="result-card success" id="remaining-card">
+          <div class="result-label">Days Remaining</div>
+          <div class="result-value large" id="result-remaining">—</div>
+          <div class="result-sub" id="result-remaining-sub">—</div>
+        </div>
+
+        <!-- Start Date -->
+        <div class="result-card">
+          <div class="result-label">Start (Day 1)</div>
+          <div class="result-value" id="result-start">—</div>
+        </div>
+
+        <!-- End Date -->
+        <div class="result-card">
+          <div class="result-label">End (Final Day)</div>
+          <div class="result-value" id="result-end">—</div>
+          <div class="result-sub" id="result-end-date">—</div>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="progress-section">
+        <div class="progress-header">
+          <span class="progress-label">Notice Period Progress</span>
+          <span class="progress-value" id="progress-percent">0%</span>
+        </div>
+        <div class="progress-bar-container" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+          id="progress-bar-wrapper">
+          <div class="progress-bar-fill" id="progress-bar" style="width: 0%;"></div>
+        </div>
+        <div class="progress-meta">
+          <div class="meta-item">
+            <i class="bi bi-clock" aria-hidden="true"></i>
+            <span id="meta-weeks">— weeks</span>
+          </div>
+          <div class="meta-item">
+            <i class="bi bi-calendar-check" aria-hidden="true"></i>
+            ETA: <strong id="meta-eta">—</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shareable URL -->
+      <div class="url-display" id="url-container" style="display: none;">
+        <i class="bi bi-link-45deg" aria-hidden="true"></i>
+        <input type="text" id="share-url" readonly aria-label="Shareable URL">
+        <button type="button" class="btn-custom btn-secondary btn-icon" id="btn-copy-url"
+          aria-label="Copy URL to clipboard">
+          <i class="bi bi-clipboard" aria-hidden="true"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- Empty State -->
+    <section class="card-section empty-state-container" id="empty-state" aria-live="polite">
+      <div class="empty-state">
+        <i class="bi bi-calendar-plus" aria-hidden="true"></i>
+        <p>Select a resignation date and click Calculate to see your notice period details</p>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="card-section" aria-labelledby="about-section-label">
+      <div class="section-label" id="about-section-label">
+        <i class="bi bi-info-circle" aria-hidden="true"></i>
+        About the Calculation
+      </div>
+      <div class="info-box">
+        <i class="bi bi-lightbulb" aria-hidden="true"></i>
+        <p>Counting is inclusive (Day 1 = resignation date) and uses date ordinals in the selected timezone to avoid DST
+          issues.</p>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Notice Period Tracker • Timezone-aware calculations</p>
+    </footer>
   </main>
 
-  <!-- Bootstrap JS (no jQuery needed) -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-    crossorigin="anonymous"></script>
+  <!-- Toast Container -->
+  <div class="toast-container" aria-live="assertive" aria-atomic="true">
+    <div class="toast-notification" id="toast" role="alert">
+      <i class="bi bi-check-circle" aria-hidden="true"></i>
+      <span id="toast-message">Copied to clipboard</span>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    /*************** TZ-safe ordinal math + state ***************/
-    const DAY_MS = 86400000;
-    const STORAGE_KEY = "notice-tracker:v3";
+    (function () {
+      'use strict';
 
-    const els = {
-      // Inputs
-      dateDisplay: byId("dateDisplay"),
-      dateISO: byId("resignDateISO"),
-      openPicker: byId("openPicker"),
-      dateHelp: byId("dateHelp"),
-      dateError: byId("dateError"),
-      periodDays: byId("periodDays"),
-      tz: byId("tz"),
-      tzNow: byId("tzNow"),
-      // Buttons
-      calcBtn: byId("calcBtn"),
-      copyBtn: byId("copyBtn"),
-      icsBtn: byId("icsBtn"),
-      gcalBtn: byId("gcalBtn"),
-      shareBtn: byId("shareBtn"),
-      resetBtn: byId("resetBtn"),
-      // KPIs
-      todayText: byId("todayText"),
-      nowTime: byId("nowTime"),
-      dayNumber: byId("dayNumber"),
-      done: byId("done"),
-      left: byId("left"),
-      statusFlag: byId("statusFlag"),
-      bar: byId("bar"),
-      totalDaysMeta: byId("totalDaysMeta"),
-      startText: byId("startText"),
-      endText: byId("endText"),
-      percentPill: byId("percentPill"),
-      weekPill: byId("weekPill"),
-      etaPill: byId("etaPill"),
-      urlPill: byId("urlPill"),
-    };
+      // DOM Elements
+      const elements = {
+        periodToggles: document.querySelectorAll('.period-toggle'),
+        resignationDate: document.getElementById('resignation-date'),
+        timezoneSelect: document.getElementById('timezone-select'),
+        btnCalculate: document.getElementById('btn-calculate'),
+        btnIcs: document.getElementById('btn-ics'),
+        btnGcal: document.getElementById('btn-gcal'),
+        btnShare: document.getElementById('btn-share'),
+        btnReset: document.getElementById('btn-reset'),
+        btnCopyUrl: document.getElementById('btn-copy-url'),
+        resultsContainer: document.querySelector('.results-container'),
+        emptyState: document.getElementById('empty-state'),
+        urlContainer: document.getElementById('url-container'),
+        shareUrl: document.getElementById('share-url'),
+        toast: document.getElementById('toast'),
+        toastMessage: document.getElementById('toast-message'),
+        progressBar: document.getElementById('progress-bar'),
+        progressBarWrapper: document.getElementById('progress-bar-wrapper'),
+        // Result elements
+        resultToday: document.getElementById('result-today'),
+        resultTodayDate: document.getElementById('result-today-date'),
+        resultDayNumber: document.getElementById('result-day-number'),
+        resultCompleted: document.getElementById('result-completed'),
+        resultCompletedOf: document.getElementById('result-completed-of'),
+        resultRemaining: document.getElementById('result-remaining'),
+        resultRemainingSub: document.getElementById('result-remaining-sub'),
+        remainingCard: document.getElementById('remaining-card'),
+        resultStart: document.getElementById('result-start'),
+        resultEnd: document.getElementById('result-end'),
+        resultEndDate: document.getElementById('result-end-date'),
+        progressPercent: document.getElementById('progress-percent'),
+        metaWeeks: document.getElementById('meta-weeks'),
+        metaEta: document.getElementById('meta-eta')
+      };
 
-    // Helpers
-    function byId(id) { return document.getElementById(id); }
-    function detectTimeZone() {
-      try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; }
-      catch { return "UTC"; }
-    }
-    function getAllTimeZones() {
-      return [
-        "Pacific/Honolulu", "America/Anchorage", "America/Los_Angeles", "America/Denver", "America/Chicago", "America/New_York",
-        "America/Sao_Paulo", "Europe/London", "Europe/Paris", "Europe/Berlin", "Europe/Madrid", "Europe/Rome", "Europe/Warsaw",
-        "Africa/Cairo", "Europe/Moscow", "Asia/Dubai", "Asia/Karachi", "Asia/Kolkata", "Asia/Dhaka", "Asia/Bangkok",
-        "Asia/Hong_Kong", "Asia/Shanghai", "Asia/Singapore", "Asia/Taipei", "Asia/Tokyo", "Asia/Seoul",
-        "Australia/Perth", "Australia/Adelaide", "Australia/Sydney", "Pacific/Auckland"
-      ];
-    }
-    function fmtDate(utcDate, timeZone) {
-      return new Intl.DateTimeFormat(undefined, { timeZone, day: "2-digit", month: "short", year: "numeric" }).format(utcDate);
-    }
-    function fmtTime(now, timeZone) {
-      return new Intl.DateTimeFormat(undefined, { timeZone, hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).format(now);
-    }
-    function partsNow(timeZone) {
-      const parts = new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).formatToParts(new Date());
-      const m = Object.fromEntries(parts.map(p => [p.type, p.value]));
-      return { y: +m.year, m: +m.month, d: +m.day, hh: +m.hour, mm: +m.minute, ss: +m.second };
-    }
-    function todayOrdinal(timeZone) {
-      const { y, m, d } = partsNow(timeZone);
-      return Math.floor(Date.UTC(y, m - 1, d) / DAY_MS);
-    }
-    function ymdToOrdinal(y, m, d) { return Math.floor(Date.UTC(y, m - 1, d) / DAY_MS); }
-    function ordinalToUTCDate(ord) { return new Date(ord * DAY_MS); }
-    function isoToYmd(iso) { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ""); if (!m) return null; return { y: +m[1], m: +m[2], d: +m[3] }; }
-    function ymdToIso({ y, m, d }) { return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`; }
-    function isoFromUTC(d, tz) {
-      const parts = new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(d);
-      const m = Object.fromEntries(parts.map(p => [p.type, p.value]));
-      return { y: +m.year, m: +m.month, d: +m.day };
-    }
+      // State
+      let state = {
+        noticePeriod: 30,
+        resignationDate: null,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        calculated: false
+      };
 
-    // dd-MM-yyyy UI helpers
-    function ddmmyyyyToIso(v) {
-      const m = /^(\d{2})-(\d{2})-(\d{4})$/.exec(v.trim());
-      if (!m) return null;
-      return `${m[3]}-${m[2]}-${m[1]}`;
-    }
-    function isoToDdmmyyyy(iso) {
-      const ymd = isoToYmd(iso); if (!ymd) return "";
-      return `${String(ymd.d).padStart(2, "0")}-${String(ymd.m).padStart(2, "0")}-${ymd.y}`;
-    }
-    function maskDateInput(el) {
-      el.addEventListener("input", () => {
-        // keep only digits, insert dashes at 2,5
-        let v = el.value.replace(/\D/g, "").slice(0, 8);
-        if (v.length >= 5) v = v.replace(/^(\d{2})(\d{2})(\d{0,4}).*$/, "$1-$2-$3");
-        else if (v.length >= 3) v = v.replace(/^(\d{2})(\d{0,2}).*$/, "$1-$2");
-        el.value = v;
-      });
-    }
+      // Initialize timezone dropdown
+      function initTimezones() {
+        const timezones = Intl.supportedValuesOf('timeZone');
+        const userTz = state.timezone;
 
-    // Bounds + validation
-    function setDateBounds(tz) {
-      const tOrd = todayOrdinal(tz);
-      const minOrd = tOrd - 90;
-      els.dateHelp.textContent = `Back-date allowed up to ${fmtDate(ordinalToUTCDate(minOrd), tz)} (90 days). No future dates.`;
-      els.dateISO.max = ymdToIso(isoFromUTC(ordinalToUTCDate(tOrd), tz));
-      els.dateISO.min = ymdToIso(isoFromUTC(ordinalToUTCDate(minOrd), tz));
-    }
-    function showError(msg) { els.dateError.textContent = msg; els.dateError.style.display = "block"; }
-    function hideError() { els.dateError.style.display = "none"; }
-
-    function validate(iso, days, tz) {
-      hideError();
-      const ymd = isoToYmd(iso);
-      if (!ymd) return showError("Invalid date."), null;
-      if (!Number.isFinite(days) || days < 1 || days > 365) return showError("Days must be 1–365."), null;
-
-      const sOrd = ymdToOrdinal(ymd.y, ymd.m, ymd.d);
-      const tOrd = todayOrdinal(tz);
-      const minOrd = tOrd - 90;
-
-      if (sOrd > tOrd) return showError("Future dates are not allowed."), null;
-      if (sOrd < minOrd) return showError(`Date too far in the past. Minimum is ${fmtDate(ordinalToUTCDate(minOrd), tz)}.`), null;
-      return { sOrd, ymd };
-    }
-
-    function compute(sOrd, total, tz) {
-      const eOrd = sOrd + (total - 1);
-      const tOrd = todayOrdinal(tz);
-
-      let done = (tOrd - sOrd) + 1;
-      if (tOrd < sOrd) done = 0;
-      if (tOrd > eOrd) done = total;
-
-      const left = Math.max(0, total - done);
-      const pct = Math.round((done / total) * 100);
-
-      let status = "On track", cls = "text-secondary";
-      if (left <= 0) { status = "✅ Complete"; cls = "text-success"; }
-      else if (left <= 14) { status = "⚠️ Final fortnight"; cls = "text-danger"; }
-      else if (left <= 30) { status = "⏳ Home stretch"; cls = "text-warning"; }
-
-      return { eOrd, done, left, pct, status, cls, tOrd };
-    }
-
-    function writeQuery({ start, days, tz }) {
-      const u = new URL(location.href);
-      u.searchParams.set("start", start);
-      u.searchParams.set("days", String(days));
-      u.searchParams.set("tz", tz);
-      history.replaceState(null, "", u);
-      els.urlPill.title = u.toString();
-    }
-
-    function saveState(state) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { } }
-    function loadState() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch { return null; } }
-
-    function render({ iso, days, tz }) {
-      const v = validate(iso, days, tz); if (!v) return;
-
-      const { eOrd, done, left, pct, status, cls, tOrd } = compute(v.sOrd, days, tz);
-      const startUTC = ordinalToUTCDate(v.sOrd);
-      const endUTC = ordinalToUTCDate(eOrd);
-      const todayUTC = ordinalToUTCDate(tOrd);
-
-      els.todayText.textContent = fmtDate(todayUTC, tz);
-      els.nowTime.textContent = `Now: ${fmtTime(new Date(), tz)} ${tz}`;
-      els.dayNumber.textContent = `${done} / ${days}`;
-      els.done.textContent = done;
-      els.left.textContent = left;
-      els.statusFlag.textContent = status;
-      els.statusFlag.className = `kpi-meta ${cls}`;
-
-      els.bar.style.width = `${pct}%`;
-      els.bar.parentElement.setAttribute("aria-valuenow", String(done));
-      els.bar.parentElement.setAttribute("aria-valuemax", String(days));
-      els.totalDaysMeta.textContent = String(days);
-
-      els.startText.textContent = fmtDate(startUTC, tz);
-      els.endText.textContent = fmtDate(endUTC, tz);
-      els.percentPill.textContent = `${pct}%`;
-      els.weekPill.textContent = `${(done / 7).toFixed(1)} weeks`;
-      els.etaPill.textContent = `ETA: ${fmtDate(endUTC, tz)}`;
-
-      writeQuery({ start: iso, days, tz });
-      saveState({ iso, days, tz });
-    }
-
-    // Calendar exports
-    function escapeICS(s) { return s.replace(/([,;])/g, "\\$1"); }
-    function toICSDate(d) {
-      const y = d.getUTCFullYear();
-      const m = String(d.getUTCMonth() + 1).padStart(2, "0");
-      const da = String(d.getUTCDate()).padStart(2, "0");
-      return `${y}${m}${da}`;
-    }
-    function toICSDateTime(d) { return d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z"); }
-    function addDays(dUTC, n) { return new Date(dUTC.getTime() + n * DAY_MS); }
-
-    function downloadICS({ title, endUTCDate }) {
-      const uid = crypto.randomUUID?.() || String(Date.now());
-      const dtstamp = toICSDateTime(new Date());
-      const dtstart = toICSDate(endUTCDate);
-      const dtend = toICSDate(addDays(endUTCDate, 1));
-      const desc = "Notice period final day (Inclusive: Day 1 = resignation date).";
-      const ics =
-        `BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//NoticePeriodTracker//v3//EN
-CALSCALE:GREGORIAN
-BEGIN:VEVENT
-UID:${uid}
-DTSTAMP:${dtstamp}
-DTSTART;VALUE=DATE:${dtstart}
-DTEND;VALUE=DATE:${dtend}
-SUMMARY:${escapeICS(title)}
-DESCRIPTION:${escapeICS(desc)}
-END:VEVENT
-END:VCALENDAR`;
-      const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = "notice-period-end.ics"; a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    }
-
-    function openGoogleCalendar(title, endUTCDate) {
-      const dates = `${toICSDate(endUTCDate)}/${toICSDate(addDays(endUTCDate, 1))}`;
-      const u = new URL("https://calendar.google.com/calendar/render");
-      u.searchParams.set("action", "TEMPLATE");
-      u.searchParams.set("text", title);
-      u.searchParams.set("dates", dates);
-      u.searchParams.set("details", "Notice period final day (inclusive).");
-      window.open(u.toString(), "_blank", "noopener");
-    }
-
-    /*************** Wiring & UX ***************/
-    function initTimeZones() {
-      const tzs = getAllTimeZones();
-      const detected = detectTimeZone();
-      for (const z of tzs) {
-        const opt = document.createElement("option");
-        opt.value = z;
-        opt.textContent = z;
-        els.tz.appendChild(opt);
+        timezones.forEach(tz => {
+          const option = document.createElement('option');
+          option.value = tz;
+          option.textContent = tz.replace(/_/g, ' ');
+          if (tz === userTz) option.selected = true;
+          elements.timezoneSelect.appendChild(option);
+        });
       }
-      // Default: Asia/Kolkata
-      const defaultTZ = "Asia/Kolkata";
-      els.tz.value = tzs.includes(defaultTZ) ? defaultTZ : detected;
-      if (!tzs.includes(els.tz.value)) {
-        const opt = document.createElement("option");
-        opt.value = els.tz.value;
-        opt.textContent = els.tz.value;
-        els.tz.insertBefore(opt, els.tz.firstChild);
+
+      // Parse URL parameters
+      function parseUrlParams() {
+        const params = new URLSearchParams(window.location.search);
+
+        if (params.has('days')) {
+          const days = parseInt(params.get('days'));
+          if ([30, 60, 90].includes(days)) {
+            state.noticePeriod = days;
+            updatePeriodToggle(days);
+          }
+        }
+
+        if (params.has('date')) {
+          const date = params.get('date');
+          if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            elements.resignationDate.value = date;
+            state.resignationDate = date;
+          }
+        }
+
+        if (params.has('tz')) {
+          const tz = params.get('tz');
+          if (Intl.supportedValuesOf('timeZone').includes(tz)) {
+            state.timezone = tz;
+            elements.timezoneSelect.value = tz;
+          }
+        }
+
+        if (state.resignationDate) {
+          calculate();
+        }
       }
-    }
 
-    function syncPresetRadiosFromDays(val) {
-      const v = String(val);
-      byId("preset30").checked = v === "30";
-      byId("preset60").checked = v === "60";
-      byId("preset90").checked = v === "90";
-    }
+      // Update period toggle UI
+      function updatePeriodToggle(days) {
+        elements.periodToggles.forEach(toggle => {
+          const isActive = parseInt(toggle.dataset.days) === days;
+          toggle.classList.toggle('active', isActive);
+          toggle.setAttribute('aria-pressed', isActive);
+        });
+      }
 
-    function recalc() {
-      render({
-        iso: els.dateISO.value,
-        days: Number(els.periodDays.value),
-        tz: els.tz.value,
-      });
-    }
+      // Get date in timezone
+      function getDateInTimezone(date, timezone) {
+        return new Date(date.toLocaleString('en-US', { timeZone: timezone }));
+      }
 
-    // Tick clock, midnight refresh in TZ
-    function tickNow() {
-      const tz = els.tz.value;
-      const p = partsNow(tz);
-      els.tzNow.textContent = `Now: ${fmtTime(new Date(), tz)} ${tz}`;
-      if (p.hh === 0 && p.mm === 0 && p.ss < 2) recalc();
-    }
+      // Format date for display
+      function formatDate(date, options = {}) {
+        const defaultOptions = {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+          timeZone: state.timezone
+        };
+        return date.toLocaleDateString('en-US', { ...defaultOptions, ...options });
+      }
 
-    // Event hookups
-    maskDateInput(els.dateDisplay);
+      // Format full date
+      function formatFullDate(date) {
+        return date.toLocaleDateString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          timeZone: state.timezone
+        });
+      }
 
-    // Open native date picker for better UX (where supported)
-    els.openPicker.addEventListener("click", () => {
-      try { els.dateISO.showPicker?.(); } catch { /* fallback: focus */ els.dateISO.focus(); }
-    });
+      // Calculate days between dates (inclusive)
+      function daysBetween(start, end) {
+        const startDate = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+        const endDate = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+        const diffTime = endDate - startDate;
+        return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      }
 
-    // When native picker changes, mirror to dd-MM-yyyy UI & recalc
-    els.dateISO.addEventListener("change", () => {
-      els.dateDisplay.value = isoToDdmmyyyy(els.dateISO.value);
-      recalc();
-    });
+      // Add days to date
+      function addDays(date, days) {
+        const result = new Date(date);
+        result.setDate(result.getDate() + days);
+        return result;
+      }
 
-    // When user types dd-MM-yyyy, convert to ISO (if valid) and recalc
-    els.dateDisplay.addEventListener("change", () => {
-      const iso = ddmmyyyyToIso(els.dateDisplay.value);
-      if (!iso) { showError("Use format dd-mm-yyyy, e.g., 17-10-2025."); return; }
-      els.dateISO.value = iso;
-      recalc();
-    });
+      // Calculate notice period
+      function calculate() {
+        const dateValue = elements.resignationDate.value;
+        if (!dateValue) {
+          showToast('Please select a resignation date', 'warning');
+          return;
+        }
 
-    // Preset radios
-    document.querySelectorAll('input[name="preset"]').forEach(r => {
-      r.addEventListener("change", () => {
-        els.periodDays.value = r.value;
-        recalc();
-      });
-    });
+        state.resignationDate = dateValue;
+        state.calculated = true;
 
-    // Custom days input
-    els.periodDays.addEventListener("input", () => {
-      const v = Number(els.periodDays.value);
-      if ([30, 60, 90].includes(v)) syncPresetRadiosFromDays(v);
-      else document.querySelectorAll('input[name="preset"]').forEach(r => r.checked = false);
-    });
-    els.periodDays.addEventListener("change", recalc);
+        // Parse resignation date
+        const [year, month, day] = dateValue.split('-').map(Number);
+        const resignationDate = new Date(year, month - 1, day);
 
-    // Timezone change
-    els.tz.addEventListener("change", () => { setDateBounds(els.tz.value); recalc(); });
+        // Calculate end date (notice period - 1 because day 1 is resignation date)
+        const endDate = addDays(resignationDate, state.noticePeriod - 1);
 
-    // Calculate button triggers same recompute
-    els.calcBtn.addEventListener("click", recalc);
+        // Get today in the selected timezone
+        const now = new Date();
+        const todayStr = now.toLocaleDateString('en-CA', { timeZone: state.timezone });
+        const [todayYear, todayMonth, todayDay] = todayStr.split('-').map(Number);
+        const today = new Date(todayYear, todayMonth - 1, todayDay);
 
-    // Copy (summary + URL)
-    els.copyBtn.addEventListener("click", async () => {
-      const summary = [
-        "Notice Period — Inclusive Tracker",
-        `Timezone: ${els.tz.value}`,
-        `Today: ${els.todayText.textContent} (${els.nowTime.textContent.replace(/^Now:\\s*/, "")})`,
-        `Day #: ${els.dayNumber.textContent} — ${els.percentPill.textContent} complete`,
-        `Completed: ${els.done.textContent} / ${els.totalDaysMeta.textContent} days`,
-        `Remaining: ${els.left.textContent} days`,
-        `Start (Day 1): ${els.startText.textContent}`,
-        `End (Final Day): ${els.endText.textContent}`,
-        `Share: ${location.href}`,
-      ].join("\n");
-      try { await navigator.clipboard.writeText(summary); } catch { }
-    });
+        // Calculate statistics
+        const daysSinceStart = daysBetween(resignationDate, today);
+        const currentDay = daysSinceStart + 1; // Inclusive (Day 1 = resignation date)
+        const daysCompleted = Math.max(0, Math.min(daysSinceStart, state.noticePeriod));
+        const daysRemaining = Math.max(0, state.noticePeriod - daysCompleted);
+        const progressPercent = Math.min(100, Math.max(0, (daysCompleted / state.noticePeriod) * 100));
+        const weeksRemaining = (daysRemaining / 7).toFixed(1);
 
-    // .ics
-    els.icsBtn.addEventListener("click", () => {
-      const iso = els.dateISO.value, tz = els.tz.value, days = Number(els.periodDays.value);
-      const v = validate(iso, days, tz); if (!v) return;
-      const endOrd = v.sOrd + (days - 1);
-      downloadICS({ title: "Notice Period — Final Day", endUTCDate: ordinalToUTCDate(endOrd) });
-    });
+        // Update UI
+        elements.resultsContainer.classList.remove('hidden');
+        elements.emptyState.style.display = 'none';
 
-    // Google Calendar
-    els.gcalBtn.addEventListener("click", () => {
-      const iso = els.dateISO.value, tz = els.tz.value, days = Number(els.periodDays.value);
-      const v = validate(iso, days, tz); if (!v) return;
-      const endOrd = v.sOrd + (days - 1);
-      openGoogleCalendar("Notice Period — Final Day", ordinalToUTCDate(endOrd));
-    });
+        // Today
+        elements.resultToday.textContent = formatDate(today);
+        elements.resultTodayDate.textContent = formatFullDate(today);
 
-    // Share
-    els.shareBtn.addEventListener("click", async () => {
-      try { await navigator.share?.({ title: document.title, url: location.href }); } catch { }
-    });
+        // Day number
+        if (currentDay < 1) {
+          elements.resultDayNumber.textContent = 'Not Started';
+        } else if (currentDay > state.noticePeriod) {
+          elements.resultDayNumber.textContent = 'Completed';
+        } else {
+          elements.resultDayNumber.textContent = `Day ${currentDay}`;
+        }
 
-    // Reset
-    els.resetBtn.addEventListener("click", () => {
-      try { localStorage.removeItem(STORAGE_KEY); } catch { }
-      // defaults again
-      els.tz.value = "Asia/Kolkata";
-      setDateBounds(els.tz.value);
-      els.periodDays.value = 90; syncPresetRadiosFromDays(90);
-      els.dateISO.value = "2025-10-17";
-      els.dateDisplay.value = "17-10-2025";
-      hideError();
-      recalc();
-    });
+        // Days completed
+        elements.resultCompleted.textContent = daysCompleted;
+        elements.resultCompletedOf.textContent = `of ${state.noticePeriod}`;
 
-    // Boot — defaults required by you
-    (function boot() {
-      initTimeZones();
-      setDateBounds("Asia/Kolkata");
+        // Days remaining
+        elements.resultRemaining.textContent = daysRemaining;
+        if (daysRemaining === 0) {
+          elements.resultRemainingSub.textContent = 'Notice period complete!';
+          elements.remainingCard.classList.remove('success');
+          elements.remainingCard.classList.add('warning');
+        } else {
+          elements.resultRemainingSub.textContent = daysRemaining === 1 ? 'day left' : 'days left';
+          elements.remainingCard.classList.add('success');
+          elements.remainingCard.classList.remove('warning');
+        }
 
-      // Defaults: 90 days, Asia/Kolkata, 17-10-2025 (dd-MM-yyyy)
-      els.tz.value = "Asia/Kolkata";
-      els.periodDays.value = 90; syncPresetRadiosFromDays(90);
-      els.dateISO.value = "2025-10-17";
-      els.dateDisplay.value = "17-10-2025";
+        // Start date
+        elements.resultStart.textContent = formatDate(resignationDate, { year: 'numeric' });
 
-      // Initial render
-      recalc();
-      // Live clock
-      tickNow(); setInterval(tickNow, 1000);
+        // End date
+        elements.resultEnd.textContent = formatDate(endDate, { year: 'numeric' });
+        elements.resultEndDate.textContent = formatFullDate(endDate);
+
+        // Progress bar
+        elements.progressBar.style.width = `${progressPercent}%`;
+        elements.progressPercent.textContent = `${Math.round(progressPercent)}%`;
+        elements.progressBarWrapper.setAttribute('aria-valuenow', Math.round(progressPercent));
+
+        // Meta info
+        elements.metaWeeks.textContent = `${weeksRemaining} weeks`;
+        elements.metaEta.textContent = formatDate(endDate, { year: 'numeric' });
+
+        // Enable action buttons
+        elements.btnIcs.disabled = false;
+        elements.btnGcal.disabled = false;
+        elements.btnShare.disabled = false;
+
+        // Update URL
+        updateShareUrl();
+      }
+
+      // Update shareable URL
+      function updateShareUrl() {
+        const url = new URL(window.location.href.split('?')[0]);
+        url.searchParams.set('days', state.noticePeriod);
+        url.searchParams.set('date', state.resignationDate);
+        url.searchParams.set('tz', state.timezone);
+
+        elements.shareUrl.value = url.toString();
+        elements.urlContainer.style.display = 'flex';
+
+        // Update browser URL without reload
+        window.history.replaceState({}, '', url.toString());
+      }
+
+      // Generate ICS file content
+      function generateIcs() {
+        if (!state.resignationDate) return null;
+
+        const [year, month, day] = state.resignationDate.split('-').map(Number);
+        const resignationDate = new Date(year, month - 1, day);
+        const endDate = addDays(resignationDate, state.noticePeriod - 1);
+
+        const formatIcsDate = (date) => {
+          return date.toISOString().split('T')[0].replace(/-/g, '');
+        };
+
+        const ics = [
+          'BEGIN:VCALENDAR',
+          'VERSION:2.0',
+          'PRODID:-//Notice Period Tracker//EN',
+          'BEGIN:VEVENT',
+          `DTSTART;VALUE=DATE:${formatIcsDate(resignationDate)}`,
+          `DTEND;VALUE=DATE:${formatIcsDate(addDays(endDate, 1))}`,
+          `SUMMARY:Notice Period (${state.noticePeriod} days)`,
+          `DESCRIPTION:Notice period from ${formatFullDate(resignationDate)} to ${formatFullDate(endDate)}`,
+          `UID:${Date.now()}@notice-period-tracker`,
+          'END:VEVENT',
+          'END:VCALENDAR'
+        ].join('\r\n');
+
+        return ics;
+      }
+
+      // Copy ICS to clipboard
+      async function copyIcs() {
+        const ics = generateIcs();
+        if (!ics) return;
+
+        try {
+          await navigator.clipboard.writeText(ics);
+          showToast('ICS copied to clipboard', 'success');
+        } catch (err) {
+          // Fallback for older browsers
+          const textarea = document.createElement('textarea');
+          textarea.value = ics;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textarea);
+          showToast('ICS copied to clipboard', 'success');
+        }
+      }
+
+      // Open Google Calendar
+      function openGoogleCalendar() {
+        if (!state.resignationDate) return;
+
+        const [year, month, day] = state.resignationDate.split('-').map(Number);
+        const resignationDate = new Date(year, month - 1, day);
+        const endDate = addDays(resignationDate, state.noticePeriod - 1);
+
+        const formatGcalDate = (date) => {
+          return date.toISOString().split('T')[0].replace(/-/g, '');
+        };
+
+        const params = new URLSearchParams({
+          action: 'TEMPLATE',
+          text: `Notice Period (${state.noticePeriod} days)`,
+          dates: `${formatGcalDate(resignationDate)}/${formatGcalDate(addDays(endDate, 1))}`,
+          details: `Notice period tracking from resignation date`,
+          ctz: state.timezone
+        });
+
+        window.open(`https://calendar.google.com/calendar/render?${params.toString()}`, '_blank');
+      }
+
+      // Share functionality
+      async function share() {
+        const url = elements.shareUrl.value;
+
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: 'Notice Period Tracker',
+              text: `My ${state.noticePeriod}-day notice period calculation`,
+              url: url
+            });
+          } catch (err) {
+            if (err.name !== 'AbortError') {
+              copyUrl();
+            }
+          }
+        } else {
+          copyUrl();
+        }
+      }
+
+      // Copy URL to clipboard
+      async function copyUrl() {
+        try {
+          await navigator.clipboard.writeText(elements.shareUrl.value);
+          showToast('URL copied to clipboard', 'success');
+        } catch (err) {
+          elements.shareUrl.select();
+          document.execCommand('copy');
+          showToast('URL copied to clipboard', 'success');
+        }
+      }
+
+      // Reset form
+      function reset() {
+        state = {
+          noticePeriod: 30,
+          resignationDate: null,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          calculated: false
+        };
+
+        elements.resignationDate.value = '';
+        elements.timezoneSelect.value = state.timezone;
+        updatePeriodToggle(30);
+
+        elements.resultsContainer.classList.add('hidden');
+        elements.emptyState.style.display = 'block';
+        elements.urlContainer.style.display = 'none';
+
+        elements.btnIcs.disabled = true;
+        elements.btnGcal.disabled = true;
+        elements.btnShare.disabled = true;
+
+        // Clear URL params
+        window.history.replaceState({}, '', window.location.pathname);
+
+        showToast('Reset complete', 'success');
+      }
+
+      // Show toast notification
+      function showToast(message, type = 'success') {
+        elements.toastMessage.textContent = message;
+        elements.toast.classList.remove('success');
+        if (type === 'success') {
+          elements.toast.classList.add('success');
+          elements.toast.querySelector('i').className = 'bi bi-check-circle';
+        } else {
+          elements.toast.querySelector('i').className = 'bi bi-exclamation-circle';
+        }
+
+        elements.toast.classList.add('show');
+
+        setTimeout(() => {
+          elements.toast.classList.remove('show');
+        }, 2500);
+      }
+
+      // Event Listeners
+      function initEventListeners() {
+        // Period toggle
+        elements.periodToggles.forEach(toggle => {
+          toggle.addEventListener('click', () => {
+            state.noticePeriod = parseInt(toggle.dataset.days);
+            updatePeriodToggle(state.noticePeriod);
+            if (state.calculated) calculate();
+          });
+        });
+
+        // Date input
+        elements.resignationDate.addEventListener('change', () => {
+          if (state.calculated) calculate();
+        });
+
+        // Timezone select
+        elements.timezoneSelect.addEventListener('change', () => {
+          state.timezone = elements.timezoneSelect.value;
+          if (state.calculated) calculate();
+        });
+
+        // Buttons
+        elements.btnCalculate.addEventListener('click', calculate);
+        elements.btnIcs.addEventListener('click', copyIcs);
+        elements.btnGcal.addEventListener('click', openGoogleCalendar);
+        elements.btnShare.addEventListener('click', share);
+        elements.btnReset.addEventListener('click', reset);
+        elements.btnCopyUrl.addEventListener('click', copyUrl);
+
+        // Keyboard accessibility for period toggles
+        elements.periodToggles.forEach((toggle, index) => {
+          toggle.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+              e.preventDefault();
+              const direction = e.key === 'ArrowRight' ? 1 : -1;
+              const newIndex = (index + direction + 3) % 3;
+              elements.periodToggles[newIndex].focus();
+              elements.periodToggles[newIndex].click();
+            }
+          });
+        });
+      }
+
+      // Initialize
+      function init() {
+        initTimezones();
+        initEventListeners();
+        parseUrlParams();
+
+        // Set default date to today
+        if (!elements.resignationDate.value) {
+          const today = new Date().toLocaleDateString('en-CA');
+          elements.resignationDate.value = today;
+        }
+      }
+
+      // Run on DOM ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
     })();
   </script>
 </body>
