@@ -733,7 +733,7 @@
 
       <!-- Period Toggle -->
       <div class="period-toggle-group" role="group" aria-label="Select notice period duration">
-        <button type="button" class="period-toggle active" data-days="30" aria-pressed="true">
+        <button type="button" class="period-toggle" data-days="30" aria-pressed="false">
           30
           <span>Days</span>
         </button>
@@ -741,7 +741,7 @@
           60
           <span>Days</span>
         </button>
-        <button type="button" class="period-toggle" data-days="90" aria-pressed="false">
+        <button type="button" class="period-toggle active" data-days="90" aria-pressed="true">
           90
           <span>Days</span>
         </button>
@@ -752,7 +752,8 @@
         <label for="resignation-date" class="form-label-custom">Resignation Date</label>
         <div class="input-wrapper">
           <i class="bi bi-calendar3" aria-hidden="true"></i>
-          <input type="date" id="resignation-date" class="form-control-custom" aria-describedby="date-help" required>
+          <input type="date" id="resignation-date" class="form-control-custom" aria-describedby="date-help" required
+            value="2025-10-17">
         </div>
         <span id="date-help" class="sr-only">Select the date you submitted your resignation</span>
       </div>
@@ -959,9 +960,9 @@
 
       // State
       let state = {
-        noticePeriod: 30,
+        noticePeriod: 90,
         resignationDate: null,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timezone: 'Asia/Calcutta',
         calculated: false
       };
 
@@ -1275,15 +1276,15 @@
       // Reset form
       function reset() {
         state = {
-          noticePeriod: 30,
+          noticePeriod: 90,
           resignationDate: null,
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          timezone: 'Asia/Calcutta',
           calculated: false
         };
 
         elements.resignationDate.value = '';
         elements.timezoneSelect.value = state.timezone;
-        updatePeriodToggle(30);
+        updatePeriodToggle(90);
 
         elements.resultsContainer.classList.add('hidden');
         elements.emptyState.style.display = 'block';
@@ -1367,10 +1368,9 @@
         initEventListeners();
         parseUrlParams();
 
-        // Set default date to today
+        // Set default date to 17 October 2025
         if (!elements.resignationDate.value) {
-          const today = new Date().toLocaleDateString('en-CA');
-          elements.resignationDate.value = today;
+          elements.resignationDate.value = '2025-10-17';
         }
       }
 
